@@ -49,7 +49,7 @@ export function buildAvatar(tl: Tl, m: Manifest): void {
     tl.to(SEL, { rotation: 0, duration: 0.12, ease: "power1.out" }, st + 0.22);
   }
 
-  // outro: 大きめのジャンプ + 手を振る風の揃れ
+  // outro: 大きめのジャンプ + 手を振る風の揺れ
   if (m.outroStart !== null && m.outroStart < m.duration - 1.2) {
     const at = m.outroStart + 0.2;
     tl.to(SEL, { y: -46, duration: 0.24, ease: "power2.out", yoyo: true, repeat: 3 }, at);
