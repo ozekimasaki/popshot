@@ -258,7 +258,7 @@ scenes:
     props: { label: "ターミナル" }
     terminal:
       theme: catppuccin-mocha
-      fontSize: 26
+      # fontSize: 40 が既定。長い出力を映す時だけ 32〜36 に下げる
       commands:
         - run: "echo 'hello popshot'"
         - expect: "hello popshot"

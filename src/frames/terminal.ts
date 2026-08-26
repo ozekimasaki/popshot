@@ -13,7 +13,7 @@ const termProps = z.object({
   label: z.string().default(""),
 });
 
-const CENTER: TerminalSlot = { x: 80, y: 520, w: 920, h: 690, radius: 28 };
+const CENTER: TerminalSlot = { x: 40, y: 500, w: 1000, h: 750, radius: 28 };
 
 function wrap(ctx: { index: number }): string {
   return `#tcw-${ctx.index}`;
@@ -22,7 +22,8 @@ function wrap(ctx: { index: number }): string {
 /** スロットに合わせたラベルピル */
 function labelHtml(label: string, slot: TerminalSlot): string {
   if (!label) return "";
-  return `<div class="tm-label ps-pill" style="position:absolute;left:${slot.x + 30}px;top:${slot.y - 46}px;font-size:38px;z-index:7;">${esc(label)}</div>`;
+  // ピルの下端がターミナルのパディング内に収まる高さ (1行目のテキストに被らない)
+  return `<div class="tm-label ps-pill" style="position:absolute;left:${slot.x + 30}px;top:${slot.y - 72}px;font-size:38px;z-index:7;">${esc(label)}</div>`;
 }
 
 export const slideIn = defineFrame({
@@ -47,7 +48,7 @@ export const slideIn = defineFrame({
   ],
 });
 
-const PIP: TerminalSlot = { x: 48, y: 900, w: 640, h: 480, radius: 24 };
+const PIP: TerminalSlot = { x: 40, y: 840, w: 780, h: 585, radius: 24 };
 
 export const pipCorner = defineFrame({
   id: "terminal/pip-corner",
@@ -106,7 +107,7 @@ export const zoomFocus = defineFrame({
   ],
 });
 
-const CRT: TerminalSlot = { x: 110, y: 540, w: 860, h: 645, radius: 40 };
+const CRT: TerminalSlot = { x: 80, y: 520, w: 920, h: 690, radius: 40 };
 
 export const crtFrame = defineFrame({
   id: "terminal/crt-frame",
@@ -136,7 +137,7 @@ export const crtFrame = defineFrame({
   ],
 });
 
-const FLOAT: TerminalSlot = { x: 90, y: 560, w: 900, h: 640, radius: 0 };
+const FLOAT: TerminalSlot = { x: 40, y: 540, w: 1000, h: 700, radius: 0 };
 
 export const floatingWindow = defineFrame({
   id: "terminal/floating-window",
@@ -168,7 +169,7 @@ export const floatingWindow = defineFrame({
   ],
 });
 
-const SPLIT: TerminalSlot = { x: 80, y: 480, w: 920, h: 560, radius: 28 };
+const SPLIT: TerminalSlot = { x: 40, y: 470, w: 1000, h: 620, radius: 28 };
 
 export const splitCompare = defineFrame({
   id: "terminal/split-compare",
@@ -183,7 +184,7 @@ export const splitCompare = defineFrame({
   terminalSlot: SPLIT,
   html: (p, ctx) =>
     `${labelHtml(p.label, SPLIT)}
-     <div class="tm-note ps-card" style="position:absolute;left:80px;top:${SPLIT.y + SPLIT.h + 40}px;width:920px;padding:40px 48px;font-size:46px;font-weight:700;line-height:1.6;border:5px solid var(--ps-accent);">${esc(p.note || ctx.narration)}</div>`,
+     <div class="tm-note ps-card" style="position:absolute;left:${SPLIT.x}px;top:${SPLIT.y + SPLIT.h + 40}px;width:${SPLIT.w}px;padding:40px 48px;font-size:46px;font-weight:700;line-height:1.6;border:5px solid var(--ps-accent);">${esc(p.note || ctx.narration)}</div>`,
   timeline(a) {
     const s = a.ctx.start;
     a.tl.fromTo(wrap(a.ctx), { y: -800, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: "power3.out" }, s + 0.05);
