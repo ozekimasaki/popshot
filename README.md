@@ -34,7 +34,11 @@ docker run --rm -p 50021:50021 voicevox/voicevox_engine:cpu-latest
 bun run src/cli.ts render myvideo/video.yaml
 ```
 
-サンプル (この動画は実際にこのリポジトリで生成できます):
+## サンプル動画
+
+このリポジトリの `popshot render` で生成した [30秒でわかる git の仕組み](https://github.com/ozekimasaki/popshot/blob/main/examples/git-30sec/demo.mp4)（1080×1920 / 約29秒）。
+
+再生成する場合:
 
 ```sh
 bun run src/cli.ts render examples/git-30sec/video.yaml
