@@ -27,7 +27,7 @@ bun run src/cli.ts init myvideo           # 台本雛形を生成
 bun run src/cli.ts render myvideo/video.yaml --mock-tts   # VOICEVOXなしでまず1本
 ```
 
-VOICEVOX エンジン (`http://127.0.0.1:50021`) を起動したば `--mock-tts` なしで実音声になります:
+VOICEVOX エンジン (`http://127.0.0.1:50021`) を起動すれば `--mock-tts` なしで実音声になります:
 
 ```sh
 docker run --rm -p 50021:50021 voicevox/voicevox_engine:cpu-latest
