@@ -22,7 +22,7 @@ scenes:
     props: { title: "gitの三層構造", nodes: ["blob (ファイルの中身)", "tree (フォルダ)", "commit (スナップショット)"] }
 
   - frame: terminal/slide-in
-    narration: "実際にコミットの中身を偵いてみるのだ"
+    narration: "実際にコミットの中身を覗いてみるのだ"
     props: { label: "実演" }
     terminal:
       theme: catppuccin-mocha
