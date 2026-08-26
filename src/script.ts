@@ -24,7 +24,8 @@ export type TerminalCommand = z.infer<typeof terminalCommandSchema>;
 const terminalSchema = z.object({
   /** tcut テーマ名 (例 "catppuccin-mocha") */
   theme: z.string().default("catppuccin-mocha"),
-  fontSize: z.number().int().min(10).max(48).default(26),
+  /** スマホ視聴前提の大きめ既定。長い出力を映す時だけ下げる */
+  fontSize: z.number().int().min(16).max(64).default(40),
   /** 収録に使うシェル。既定はクリーンな bash */
   shell: z.string().optional(),
   commands: z.array(terminalCommandSchema).min(1),

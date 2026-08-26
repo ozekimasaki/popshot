@@ -26,7 +26,7 @@ scenes:
     props: { label: "実演" }
     terminal:
       theme: catppuccin-mocha
-      fontSize: 24
+      fontSize: 34   # git cat-file の tree 行 (45文字) が折り返さないよう既定40より下げる
       commands:
         - hide: ["cd $(mktemp -d) && git init -q && git config user.email a@a && git config user.name a && git config commit.gpgsign false"]
         - run: "echo 'hello git' > hello.txt"

@@ -60,7 +60,7 @@ terminal カテゴリのフレームには `terminal:` 定義が必須。CLI が
   props: { label: "実演" }
   terminal:
     theme: catppuccin-mocha      # tcut themes で一覧
-    fontSize: 24
+    # fontSize: 40 が既定 (スマホ視聴前提の大きめ)。長い行を映す時だけ 32〜36 に下げる
     commands:
       - hide: ["cd $(mktemp -d) && git init -q"]   # 画面外セットアップ
       - run: "git status"                           # 入力+実行して プロンプト復帰を待つ
@@ -71,6 +71,7 @@ terminal カテゴリのフレームには `terminal:` 定義が必須。CLI が
 - `hide` で環境構築を済ませる。git を使うなら `git config commit.gpgsign false` も hide に入れる (署名で出力が汚れる)
 - 収録がシーン尺より長いと自動で最大4倍速に圧縮される。コマンドは 2〜4 個に絞る
 - コマンドは実際に実行されるので、破壊的な操作を書かない
+- 文字サイズの目安: fontSize 40 なら約41桁、36 なら約46桁でスロットに収まる。映したい出力の最長行に合わせて選ぶ (折り返しは見づらい)
 
 ## 失敗時の対処
 

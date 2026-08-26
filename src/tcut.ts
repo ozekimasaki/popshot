@@ -20,7 +20,8 @@ function commandToLine(cmd: TerminalCommand): string {
   if ("wait" in cmd) return `  await t.wait(new RegExp(${JSON.stringify(escapeRegex(cmd.wait))}), { scope: "scrollback" });`;
   if ("sleep" in cmd) return `  await t.sleep(${JSON.stringify(cmd.sleep)});`;
   if ("hide" in cmd) {
-    const inner = cmd.hide.map((c) => `    await t.run(${JSON.stringify(c)});`).join("\n");
+    // 最後に clear して、隠したコマンドの echo が可視部分に残らないようにする
+    const inner = [...cmd.hide.map((c) => `    await t.run(${JSON.stringify(c)});`), `    await t.run("clear");`].join("\n");
     return `  await t.hide(async () => {\n${inner}\n  });`;
   }
   const _exhaustive: never = cmd;
@@ -31,6 +32,9 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/** スロット表示サイズに対する収録解像度の倍率 (文字のにじみ防止のスーパーサンプリング) */
+const RECORD_SCALE = 2;
+
 function generateScript(terminal: TerminalConfig, slot: TerminalSlot): string {
   const lines = terminal.commands.map(commandToLine).join("\n");
   return `import { defineVideo } from "termcut";
@@ -38,10 +42,11 @@ function generateScript(terminal: TerminalConfig, slot: TerminalSlot): string {
 export default defineVideo(
   {
     output: "demo.mp4",
-    width: ${slot.w},
-    height: ${slot.h},
+    width: ${slot.w * RECORD_SCALE},
+    height: ${slot.h * RECORD_SCALE},
     theme: ${JSON.stringify(terminal.theme)},
-    fontSize: ${terminal.fontSize},
+    font: { size: ${terminal.fontSize * RECORD_SCALE} },
+    padding: ${24 * RECORD_SCALE},
 ${terminal.shell ? `    shell: ${JSON.stringify(terminal.shell)},` : ""}
   },
   async (t) => {
@@ -64,7 +69,7 @@ export interface RecordOptions {
 /** terminal 定義を収録し、目標尺にスピードフィットした mp4 を返す */
 export async function recordTerminal(opts: RecordOptions): Promise<TcutResult> {
   const { terminal, slot, targetDuration } = opts;
-  const key = contentHash({ terminal, w: slot.w, h: slot.h, target: Math.round(targetDuration * 10), v: 1 });
+  const key = contentHash({ terminal, w: slot.w, h: slot.h, target: Math.round(targetDuration * 10), v: 3 });
   const dir = join(opts.cacheDir, key);
   const fitted = join(dir, "fitted.mp4");
 
