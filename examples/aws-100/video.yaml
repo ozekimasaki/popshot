@@ -1,0 +1,580 @@
+# 100フレーム全種をつなげた AWS 解説 (ずんだもん)
+title: "100パターンで学ぶ AWS"
+theme: yellow
+speaker: 3
+speedScale: 1.25
+avatar: true
+bgm: ../../assets/bgm/pop-loop.wav
+
+scenes:
+  # ---- hook 10 ----
+  - frame: hook/impact-zoom
+    narration: "AWS、世界のクラウドの王者なのだ"
+    props: { title: "AWSを100パターンで", badge: "全フレーム収録" }
+
+  - frame: hook/countdown-3
+    narration: "三、二、一、クラウド開始なのだ"
+    props: { title: "クラウド開始!" }
+
+  - frame: hook/yabai-badge
+    narration: "知らないと現場で詰むのだ"
+    props: { badge: "知らないとヤバい", title: "AWSの基本" }
+
+  - frame: hook/question-slam
+    narration: "クラウドって何がすごいのだ?"
+    props: { title: "クラウドって何がすごい?" }
+
+  - frame: hook/stat-shock
+    narration: "世界シェアは三割を超えるのだ"
+    props:
+      value: 31
+      suffix: "%"
+      label: "クラウド世界シェア"
+
+  - frame: transition/pill-bounce-wipe
+
+  - frame: hook/before-after-flash
+    narration: "オンプレからクラウドへ一変なのだ"
+    props: { before: "自前サーバ地獄", after: "必要な時だけ起動" }
+
+  - frame: hook/siren-alert
+    narration: "公開バケット、今すぐ確認なのだ"
+    props: { title: "S3公開設定に注意", badge: "⚠ セキュリティ" }
+
+  - frame: hook/typewriter-burst
+    narration: "まずは全体像から掴むのだ"
+    props: { title: "まずは全体像から" }
+
+  - frame: hook/emoji-rain-open
+    narration: "サービスがたくさん降ってくるのだ"
+    props:
+      title: "サービスが雨あられ"
+      emojis: ["☁️", "🖥️", "📦", "🔑", "⚡", "🌍"]
+
+  - frame: hook/spotlight-reveal
+    narration: "主役はリージョンとAZなのだ"
+    props: { title: "主役はリージョン" }
+
+  - frame: transition/pastel-confetti
+
+  # ---- text 10 ----
+  - frame: text/char-pop
+    narration: "AWSは借りて使うコンピュータなのだ"
+    props: { text: "借りて使うコンピュータ", emphasis: "借りて使う" }
+
+  - frame: text/karaoke-highlight
+    narration: "作って壊して、また作れるのだ"
+    props: { text: "作って壊して、また作れる" }
+
+  - frame: text/word-explosion
+    narration: "鍵は従量課金なのだ"
+    props: { text: "課金の正体は", emphasis: "従量課金" }
+
+  - frame: text/vertical-drop
+    narration: "世界中にデータセンターがあるのだ"
+    props: { text: "世界中にデータセンター" }
+
+  - frame: text/neon-pulse
+    narration: "東京リージョンが日本の拠点なのだ"
+    props: { text: "東京リージョン" }
+
+  - frame: text/wave-text
+    narration: "可用ゾーンで止まらないのだ"
+    props: { text: "AZで止まらない" }
+
+  - frame: text/stamp-press
+    narration: "責任共有モデル、これ大事なのだ"
+    props: { text: "忘れちゃダメ", emphasis: "責任共有" }
+
+  - frame: text/underline-sweep
+    narration: "IAMがすべての入口なのだ"
+    props: { text: "IAMがすべての入口", emphasis: "IAM" }
+
+  - frame: text/split-flap
+    narration: "マネージドで運用が軽くなるのだ"
+    props: { text: "マネージドで楽になる" }
+
+  - frame: text/gradient-slide
+    narration: "Well-Architectedが設計の地図なのだ"
+    props: { text: "Well-Architected" }
+
+  - frame: transition/screen-crack
+
+  # ---- diagram 10 ----
+  - frame: diagram/flow-arrows
+    narration: "リクエストは三層を流れるのだ"
+    props:
+      title: "典型ウェブ構成"
+      nodes: ["CloudFront", "ALB + EC2", "RDS"]
+
+  - frame: diagram/node-light-up
+    narration: "コアサービスが順番に点灯するのだ"
+    props:
+      title: "コアサービス"
+      nodes: ["EC2", "S3", "RDS", "Lambda"]
+      active: 3
+
+  - frame: diagram/layer-stack
+    narration: "下から積み上がるクラウドなのだ"
+    props:
+      title: "AWSの層"
+      layers: ["リージョン / AZ", "ネットワーク VPC", "計算 EC2/Lambda", "データ S3/RDS"]
+
+  - frame: diagram/orbit-cycle
+    narration: "VPCの周りをサービスが回るのだ"
+    props:
+      center: "VPC"
+      items: ["EC2", "ALB", "NAT", "Endpoint"]
+
+  - frame: diagram/tree-grow
+    narration: "アカウントの下にOUが育つなのだ"
+    props:
+      root: "Organizations"
+      children: ["本番", "開発", "監査"]
+
+  - frame: diagram/pipeline-conveyor
+    narration: "コードがパイプラインを流れるのだ"
+    props:
+      stages: ["CodeCommit", "CodeBuild", "CodeDeploy"]
+      item: "📦"
+
+  - frame: diagram/venn-merge
+    narration: "IaaSとPaaSの重なりが強みなのだ"
+    props: { left: "IaaS", right: "PaaS", overlap: "AWS" }
+
+  - frame: diagram/timeline-walk
+    narration: "進化の歴史をひと歩きなのだ"
+    props:
+      title: "AWSクロニクル"
+      steps: ["2006 S3", "2014 Lambda", "2017 EKS"]
+
+  - frame: diagram/box-connect
+    narration: "アプリからS3へ届くのだ"
+    props: { from: "アプリ", to: "S3", packet: "📦" }
+
+  - frame: diagram/zoom-map
+    narration: "まずはVPCにズームするのだ"
+    props:
+      cells: ["VPC", "EC2", "RDS", "S3", "IAM", "CloudWatch"]
+      focus: 0
+      note: "ネットワークの箱"
+
+  - frame: transition/dot-wipe
+
+  # ---- list 10 ----
+  - frame: list/ranking-flip
+    narration: "よく使うサービス三傑なのだ"
+    props:
+      title: "現場の三傑"
+      items: ["EC2 仮想サーバ", "S3 オブジェクト", "IAM 権限"]
+
+  - frame: list/checklist-pop
+    narration: "アカウント開設チェックなのだ"
+    props:
+      title: "最初にやること"
+      items: ["ルートMFA", "IAMユーザー", "請求アラーム"]
+
+  - frame: list/bingo-grid
+    narration: "これ全部使えたらビンゴなのだ"
+    props:
+      cells: ["EC2", "S3", "RDS", "VPC", "IAM", "Lambda", "ALB", "CW", "CFN"]
+      line: 1
+
+  - frame: list/carousel-cards
+    narration: "計算の選択肢が流れてくるのだ"
+    props:
+      title: "計算サービス"
+      items: ["EC2", "Lambda", "Fargate", "ECS"]
+
+  - frame: list/step-ladder
+    narration: "デプロイは三ステップなのだ"
+    props:
+      title: "初デプロイ"
+      items: ["VPCを作る", "EC2を起動", "ALBで公開"]
+
+  - frame: list/versus-table
+    narration: "EC2とLambda、対決なのだ"
+    props:
+      leftTitle: "EC2"
+      rightTitle: "Lambda"
+      leftItems: ["常時起動", "OSまで管理"]
+      rightItems: ["イベント駆動", "サーバレス"]
+
+  - frame: list/tag-cloud-burst
+    narration: "サービス名が爆発するのだ"
+    props:
+      title: "サービス雲"
+      items: ["EC2", "S3", "RDS", "DynamoDB", "SQS", "SNS", "Kinesis", "EKS"]
+
+  - frame: list/accordion-drop
+    narration: "なぜIAMが先なのかなのだ"
+    props:
+      q: "なぜIAMが先?"
+      answers: ["権限がないと何もできない", "ルート乱用は事故のもと"]
+
+  - frame: list/medal-podium
+    narration: "ストレージの表彰台なのだ"
+    props: { first: "S3", second: "EBS", third: "EFS" }
+
+  - frame: list/swipe-cards
+    narration: "データベースをスワイプなのだ"
+    props:
+      title: "DB選び"
+      items: ["RDS リレーショナル", "DynamoDB NoSQL", "ElastiCache キャッシュ"]
+
+  - frame: transition/ribbon-sweep
+
+  # ---- stat 10 ----
+  - frame: stat/counter-blast
+    narration: "リージョンは三十を超えるのだ"
+    props: { value: 30, suffix: "+", label: "リージョン数" }
+
+  - frame: stat/gauge-fill
+    narration: "無料枠でも七割学べるのだ"
+    props: { percent: 70, label: "無料枠で学べる量" }
+
+  - frame: stat/pie-spin
+    narration: "計算コストが大半を占めるのだ"
+    props: { percent: 58, label: "請求のうち計算" }
+
+  - frame: stat/bar-race
+    narration: "人気サービスの競争なのだ"
+    props:
+      title: "利用ランキング"
+      items:
+        - { name: "EC2", value: 92 }
+        - { name: "S3", value: 88 }
+        - { name: "RDS", value: 71 }
+
+  - frame: stat/percent-pop
+    narration: "高可用の数字を見るのだ"
+    props:
+      items:
+        - { label: "S3耐久性", percent: 99 }
+        - { label: "マルチAZ", percent: 99 }
+
+  - frame: stat/sparkline-draw
+    narration: "トラフィックは右肩上がりなのだ"
+    props:
+      values: [12, 18, 16, 28, 40, 62, 90]
+      label: "月次リクエスト"
+
+  - frame: stat/odometer-roll
+    narration: "AZはざっくり百箇所なのだ"
+    props: { value: 100, label: "可用性ゾーン数" }
+
+  - frame: stat/donut-reveal
+    narration: "スポットなら大きく下がるのだ"
+    props: { percent: 70, label: "スポット割引" }
+
+  - frame: stat/big-number-slam
+    narration: "十一ナインの耐久性なのだ"
+    props: { value: "11ナイン", label: "S3の耐久性" }
+
+  - frame: stat/compare-scale
+    narration: "クラウド側が重いのだ"
+    props:
+      left: { label: "オンプレ", value: 28 }
+      right: { label: "AWS", value: 72 }
+
+  - frame: transition/page-flip
+
+  # ---- code 10 ----
+  - frame: code/typing-reveal
+    narration: "SDKでバケットを作るのだ"
+    props:
+      title: "s3.ts"
+      code: |-
+        const s3 = new S3Client({
+          region: "ap-northeast-1",
+        })
+
+  - frame: code/line-zoom
+    narration: "リージョン指定が肝なのだ"
+    props:
+      title: "client.ts"
+      highlight: 2
+      code: |-
+        const s3 = new S3Client({
+          region: "ap-northeast-1",
+        })
+
+  - frame: code/diff-before-after
+    narration: "ルートキーは捨てるのだ"
+    props:
+      title: "iam.sh"
+      before: "aws configure --profile root"
+      after: "aws configure --profile app"
+
+  - frame: code/syntax-rainbow
+    narration: "ポリシーはJSONで光るのだ"
+    props:
+      title: "policy.json"
+      code: |-
+        { "Effect": "Allow",
+          "Action": "s3:GetObject",
+          "Resource": "arn:aws:s3:::logs/*" }
+
+  - frame: code/error-shake
+    narration: "権限不足で落ちるのだ"
+    props:
+      title: "cli"
+      code: "aws s3 ls s3://secret-logs"
+      message: "AccessDenied"
+
+  - frame: code/copy-paste-flash
+    narration: "この一行をコピペなのだ"
+    props:
+      title: "whoami"
+      label: "コピペOK"
+      code: "aws sts get-caller-identity"
+
+  - frame: code/scroll-follow
+    narration: "テンプレートが長いのだ"
+    props:
+      title: "vpc.yaml"
+      code: |-
+        AWSTemplateFormatVersion: "2010-09-09"
+        Resources:
+          Vpc:
+            Type: AWS::EC2::VPC
+            Properties:
+              CidrBlock: 10.0.0.0/16
+          SubnetA:
+            Type: AWS::EC2::Subnet
+          SubnetB:
+            Type: AWS::EC2::Subnet
+          Igw:
+            Type: AWS::EC2::InternetGateway
+
+  - frame: code/bracket-highlight
+    narration: "括弧の中がリソースなのだ"
+    props:
+      title: "stack.ts"
+      code: |-
+        new Bucket(this, "Logs", {
+          encryption: BucketEncryption.S3_MANAGED,
+        })
+
+  - frame: code/minimap-pan
+    narration: "長い定義を俯瞰するのだ"
+    props:
+      title: "app.ts"
+      code: |-
+        const vpc = new Vpc(this, "Vpc")
+        const sg = new SecurityGroup(this, "Sg", { vpc })
+        const fn = new Function(this, "Fn", {
+          runtime: Runtime.NODEJS_20_X,
+          handler: "index.handler",
+          vpc,
+        })
+
+  - frame: code/code-to-output
+    narration: "呼んだらアカウントが出るのだ"
+    props:
+      title: "sts"
+      code: "aws sts get-caller-identity"
+      output: "Account: 123456789012"
+
+  - frame: transition/bubble-pop
+
+  # ---- terminal 10 ----
+  - frame: terminal/slide-in
+    narration: "リージョンを表示するのだ"
+    props: { label: "リージョン" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 36
+      commands:
+        - run: "echo ap-northeast-1"
+        - expect: "ap-northeast-1"
+
+  - frame: terminal/pip-corner
+    narration: "呼び出し元を確認するのだ"
+    props: { title: "誰として叩く?", label: "STS" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 34
+      commands:
+        - run: "echo Account=123456789012"
+        - expect: "123456789012"
+
+  - frame: terminal/zoom-focus
+    narration: "バケット一覧にズームなのだ"
+    props: { label: "S3 ls" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 36
+      commands:
+        - run: "printf 'my-logs\nmy-media\n'"
+        - expect: "my-media"
+
+  - frame: terminal/crt-frame
+    narration: "インスタンス起動をレトロ表示なのだ"
+    props: { label: "EC2" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 36
+      commands:
+        - run: "echo i-0abc123 running"
+        - expect: "running"
+
+  - frame: terminal/floating-window
+    narration: "関数を呼び出すのだ"
+    props: { title: "lambda invoke" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 36
+      commands:
+        - run: "echo hello-from-lambda"
+        - expect: "hello-from-lambda"
+
+  - frame: terminal/split-compare
+    narration: "デプロイ前後を見比べるのだ"
+    props: { label: "deploy", note: "CloudFormation 完了" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 34
+      commands:
+        - run: "echo CREATE_COMPLETE vpc-stack"
+        - expect: "CREATE_COMPLETE"
+
+  - frame: terminal/fullscreen-takeover
+    narration: "ログが画面を埋め尽くすのだ"
+    props: { label: "CloudWatch" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 34
+      commands:
+        - run: "echo ERROR timeout /api/orders"
+        - expect: "timeout"
+
+  - frame: terminal/bounce-drop
+    narration: "キューの深さを見るのだ"
+    props: { label: "SQS" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 36
+      commands:
+        - run: "echo ApproximateNumberOfMessages=12"
+        - expect: "12"
+
+  - frame: terminal/glitch-in
+    narration: "権限エラーがグリッチするのだ"
+    props: { label: "AccessDenied" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 34
+      commands:
+        - run: "echo An error occurred (AccessDenied)"
+        - expect: "AccessDenied"
+
+  - frame: terminal/progress-follow
+    narration: "スタック作成の進捗なのだ"
+    props: { label: "CREATE_IN_PROGRESS" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 34
+      commands:
+        - run: "echo 1/4 VPC 2/4 Subnet 3/4 IGW 4/4 DONE"
+        - expect: "DONE"
+
+  - frame: transition/zoom-through
+
+  # ---- quiz 10 ----
+  - frame: quiz/choice-3
+    narration: "S3の本質はどれなのだ?"
+    props:
+      question: "S3の本質は?"
+      choices: ["ブロックディスク", "オブジェクトストレージ", "ファイルNAS"]
+      answer: 1
+
+  - frame: quiz/true-false
+    narration: "リージョンをまたぐVPCは一つの箱、マルかバツか"
+    props: { question: "VPCは全リージョン共通?", answer: 1 }
+
+  - frame: quiz/fill-blank
+    narration: "空欄に入る言葉はなのだ"
+    props: { before: "権限の要は", after: "", answer: "IAM" }
+
+  - frame: quiz/thinking-timer
+    narration: "サーバーレスの代表はなのだ"
+    props: { question: "サーバレスの代表は?", answer: "Lambda" }
+
+  - frame: quiz/answer-confetti
+    narration: "正解はLambdaなのだ"
+    props: { answer: "Lambda", note: "イベントで起動" }
+
+  - frame: transition/color-flood
+
+  - frame: quiz/hint-peek
+    narration: "耐久性のヒントが出るのだ"
+    props: { question: "S3の耐久性は?", hint: "イレブンナイン" }
+
+  - frame: quiz/progress-quiz
+    narration: "二問目、AZの役割なのだ"
+    props:
+      current: 2
+      total: 3
+      question: "AZの役割は?"
+      answer: "障害隔離"
+
+  - frame: quiz/emoji-vote
+    narration: "どっちで計算する派なのだ"
+    props:
+      question: "計算どっち派?"
+      left: { emoji: "🖥️", label: "EC2", percent: 54 }
+      right: { emoji: "λ", label: "Lambda", percent: 46 }
+
+  - frame: quiz/speed-quiz
+    narration: "高速、CDNの名前なのだ"
+    props: { question: "CDNの名前は?", answer: "CloudFront" }
+
+  - frame: quiz/reverse-quiz
+    narration: "答えから問題を当てるのだ"
+    props: { answer: "責任共有モデル", question: "セキュリティの分担は?" }
+
+  - frame: transition/avatar-jump-cut
+
+  # ---- outro 10 ----
+  - frame: outro/follow-cta
+    narration: "フォローで毎日クラウドなのだ"
+    props: { message: "続きはフォローで!", buttonText: "フォロー" }
+
+  - frame: outro/next-teaser
+    narration: "次回はVPCを深掘りなのだ"
+    props: { label: "次回予告", title: "VPCとサブネット" }
+
+  - frame: outro/recap-cards
+    narration: "今日のまとめ三つなのだ"
+    props:
+      title: "今日のまとめ"
+      items: ["IAMが入口", "リージョンとAZ", "従量課金"]
+
+  - frame: outro/avatar-bow
+    narration: "ご視聴ありがとうなのだ"
+    props: { message: "ご視聴ありがとうなのだ" }
+
+  - frame: outro/subscribe-pill
+    narration: "チャンネル登録もお願いなのだ"
+    props: { message: "登録して次も見るのだ", buttonText: "登録" }
+
+  - frame: outro/question-to-comments
+    narration: "使ってるサービス教えてなのだ"
+    props: { question: "一番使うAWSは?" }
+
+  - frame: outro/series-badge
+    narration: "クラウド百本ノック、一本目なのだ"
+    props: { series: "クラウド百本ノック", number: 1, message: "毎日1本お届け" }
+
+  - frame: outro/loop-back
+    narration: "最初からもう一回なのだ"
+    props: { message: "最初からもう一周!" }
+
+  - frame: outro/thanks-confetti
+    narration: "最後まで見てくれて嬉しいのだ"
+    props: { message: "見てくれてありがとう!" }
+
+  - frame: outro/save-reminder
+    narration: "保存して復習するのだ"
+    props: { message: "保存して後で復習!" }
