@@ -1,0 +1,4 @@
+{
+  "name": "popshot",
+  "install": "bash .cursor/install.sh"
+}
