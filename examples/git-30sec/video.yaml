@@ -1,0 +1,49 @@
+# サンプル: 30秒でわかる git の仕組み
+title: "30秒でわかる git の仕組み"
+theme: cyan
+speaker: 3          # ずんだもん
+speedScale: 1.15
+avatar: true
+bgm: ../../assets/bgm/pop-loop.wav
+
+scenes:
+  - frame: hook/impact-zoom
+    narration: "gitの中身、実は超シンプルなのだ"
+    props: { title: "gitの正体", badge: "知らないと損" }
+
+  - frame: text/char-pop
+    narration: "gitが保存しているのは差分じゃなくてスナップショットなのだ"
+    props: { text: "差分じゃなくてスナップショット", emphasis: "スナップショット" }
+
+  - frame: transition/pill-bounce-wipe
+
+  - frame: diagram/flow-arrows
+    narration: "中身はblobとtreeとcommitの三層構造なのだ"
+    props: { title: "gitの三層構造", nodes: ["blob (ファイルの中身)", "tree (フォルダ)", "commit (スナップショット)"] }
+
+  - frame: terminal/slide-in
+    narration: "実際にコミットの中身を偵いてみるのだ"
+    props: { label: "実演" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 24
+      commands:
+        - hide: ["cd $(mktemp -d) && git init -q && git config user.email a@a && git config user.name a && git config commit.gpgsign false"]
+        - run: "echo 'hello git' > hello.txt"
+        - run: "git add . && git commit -qm 'first'"
+        - run: "git cat-file -p HEAD"
+        - expect: "tree"
+
+  - frame: transition/pastel-confetti
+
+  - frame: quiz/true-false
+    narration: "ここで問題。gitのブランチはフォルダのコピー、マルかバツか"
+    props: { question: "ブランチ = フォルダのコピー?", answer: 1 }
+
+  - frame: text/word-explosion
+    narration: "正解はバツ。ブランチはただのポインタなのだ"
+    props: { text: "ブランチの正体は", emphasis: "ただのポインタ" }
+
+  - frame: outro/follow-cta
+    narration: "フォローで毎日1分、技術解説をお届けするのだ"
+    props: { message: "続きはフォローで!", buttonText: "フォロー" }
