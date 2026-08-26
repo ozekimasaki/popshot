@@ -56,7 +56,7 @@ bun run src/cli.ts render examples/git-30sec/video.yaml
 | `popshot render <yaml>` | ワンパス生成。`--mock-tts` `--no-cache` `--only <stage>` `--check` `-q draft\|standard\|high` |
 | `popshot init [dir]` | 台本雛形の生成 |
 | `popshot frames [--json]` | 100フレームのカタログ |
-| `popshot preview <yaml>` | HyperFrames Studio でプブュー |
+| `popshot preview <yaml>` | HyperFrames Studio でプレビュー |
 | `popshot doctor` | 依存診断 |
 | `popshot batch <dir>` | `*.yaml` を一括レンダリング |
 
