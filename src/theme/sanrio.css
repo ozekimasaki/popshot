@@ -1,0 +1,266 @@
+/*
+ * サンリオ公式サイトの DESIGN.md 実測値に基づくテーマトークン
+ * - テキストに純黒を使わない (#777777)
+ * - CTA はピル (radius 80px+)、カードは radius 20-24px
+ * - 影は淡く、色面と丸みで階層を作る
+ * 注意: アニメーション対象要素に CSS transform を書かない (GSAP fromTo と衝突するため)
+ */
+
+#root {
+  --ps-cyan: #8bd0dd;
+  --ps-cyan-mid: #71c6d6;
+  --ps-pink: #e383a8;
+  --ps-purple: #cda1dc;
+  --ps-yellow: #f2d36b;
+  --ps-green: #91dea9;
+  --ps-coral: #f08080;
+  --ps-text: #777777;
+  --ps-white: #ffffff;
+  --ps-surface-cyan: #f0f9fa;
+  --ps-surface-cyan-2: #e2f2f7;
+  --ps-surface-pink: #fdf5fa;
+  --ps-surface-gray: #f7f7f7;
+  --ps-border: #dddddd;
+  --ps-shadow-1: 0 4px 14px rgba(0, 0, 0, 0.06);
+  --ps-shadow-2: 0 8px 26px rgba(0, 0, 0, 0.1);
+
+  font-family: "Noto Sans JP", sans-serif;
+  color: var(--ps-text);
+  background: var(--ps-white);
+}
+
+/* ---- レイヤー構造 ---- */
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 6;
+}
+
+#bg {
+  position: absolute;
+  inset: -240px;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 24px 24px, color-mix(in srgb, var(--ps-accent) 14%, transparent) 26px, transparent 27px),
+    radial-gradient(circle at 144px 144px, color-mix(in srgb, var(--ps-accent) 8%, transparent) 18px, transparent 19px);
+  background-size: 240px 240px;
+}
+
+.tcut-wrap {
+  z-index: 4;
+}
+
+#captions {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+#avatar-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+/* ---- タイポグラフィ (縦型1080x1920向けにスケール) ---- */
+.ps-h1 {
+  font-size: 92px;
+  font-weight: 900;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.ps-h2 {
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.ps-body {
+  font-size: 44px;
+  font-weight: 500;
+  line-height: 1.8;
+  letter-spacing: 0.12em;
+  margin: 0;
+}
+
+.ps-small {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+}
+
+/* ---- コンポーネント ---- */
+.ps-pill {
+  display: inline-block;
+  background: var(--ps-accent);
+  color: var(--ps-white);
+  font-weight: 700;
+  border-radius: 90px;
+  padding: 18px 54px;
+}
+
+.ps-pill-outline {
+  display: inline-block;
+  background: var(--ps-white);
+  color: var(--ps-accent);
+  border: 4px solid var(--ps-accent);
+  font-weight: 700;
+  border-radius: 90px;
+  padding: 14px 50px;
+}
+
+.ps-card {
+  background: var(--ps-white);
+  border-radius: 24px;
+  box-shadow: var(--ps-shadow-1);
+}
+
+.ps-badge {
+  display: inline-block;
+  background: var(--ps-accent);
+  color: var(--ps-white);
+  font-weight: 900;
+  border-radius: 90px;
+  padding: 10px 36px;
+  font-size: 36px;
+  letter-spacing: 0.08em;
+}
+
+.ps-accent {
+  color: var(--ps-accent);
+}
+
+/* コード表示 (可愛い配色のダークカード) */
+.ps-code {
+  background: #4a4458;
+  color: #f4eef7;
+  border-radius: 24px;
+  font-family: "Noto Sans JP", monospace;
+  font-size: 34px;
+  line-height: 1.65;
+  letter-spacing: 0.02em;
+  padding: 44px 48px;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  box-shadow: var(--ps-shadow-2);
+}
+
+.ps-code .tok-k { color: #8bd0dd; font-weight: 700; }
+.ps-code .tok-s { color: #f2d36b; }
+.ps-code .tok-c { color: #a99cb8; }
+.ps-code .tok-f { color: #e383a8; font-weight: 700; }
+.ps-code .tok-n { color: #91dea9; }
+
+/* カラオケ字幕 */
+.cap-page {
+  position: absolute;
+  left: 48px;
+  bottom: 132px;
+  width: 690px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 28px;
+  box-shadow: var(--ps-shadow-1);
+  padding: 26px 34px;
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: var(--ps-text);
+  opacity: 0;
+}
+
+.cap-ch {
+  display: inline-block;
+  min-width: 0.28em;
+}
+
+/* 文字ポップ用の汎用スパン */
+.ch {
+  display: inline-block;
+  white-space: pre;
+}
+
+/* フレーム共通: 中央ステージ (字幕・アバターと干渉しないセーフゾーン) */
+.fx-stage {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 150px;
+  bottom: 470px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 44px;
+  padding: 0 70px;
+  text-align: center;
+}
+
+/* パーティクル */
+.prt {
+  position: absolute;
+  z-index: 8;
+  opacity: 0;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* 図解ノード */
+.dg-node {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ps-white);
+  border: 5px solid var(--ps-accent);
+  border-radius: 28px;
+  font-size: 46px;
+  font-weight: 700;
+  color: var(--ps-text);
+  box-shadow: var(--ps-shadow-1);
+  padding: 26px 40px;
+}
+
+.dg-arrow {
+  font-size: 58px;
+  font-weight: 900;
+  color: var(--ps-accent);
+  line-height: 1;
+}
+
+/* リスト行 */
+.li-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  background: var(--ps-white);
+  border-radius: 26px;
+  box-shadow: var(--ps-shadow-1);
+  padding: 30px 42px;
+  font-size: 46px;
+  font-weight: 700;
+  text-align: left;
+  width: 100%;
+}
+
+.li-num {
+  flex: none;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--ps-accent);
+  color: var(--ps-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  font-weight: 900;
+}
