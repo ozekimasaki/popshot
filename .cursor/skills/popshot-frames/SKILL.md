@@ -1,6 +1,6 @@
 ---
 name: popshot-frames
-description: popshot の100フレーム (シーンテンプレート) カタログの引き方・選び方と、新規フレームの追加方法。HyperFrames の決定論制約 (fromTo必須・aotoAlpha・有限repeat・シード乱数) とドーパミン設計規約を含む。フレームの選定・カスタマイズ・追加を行うときに読む。
+description: popshot の100フレーム (シーンテンプレート) カタログの引き方・選び方と、新規フレームの追加方法。HyperFrames の決定論制約 (fromTo必須・autoAlpha・有限repeat・シード乱数) とドーパミン設計規約を含む。フレームの選定・カスタマイズ・追加を行うときに読む。
 ---
 
 # popshot のフレームを使う・作る
