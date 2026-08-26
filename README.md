@@ -45,6 +45,13 @@ bun run src/cli.ts render examples/git-30sec/video.yaml
 # → examples/git-30sec/out/30秒でわかる-git-の仕組み.mp4
 ```
 
+全100フレームをつないだ AWS 入門は [examples/aws-100](examples/aws-100)（1080×1920 / 約3分57秒）。完成 MP4 は `examples/aws-100/demo.mp4`。
+
+```sh
+bun run src/cli.ts render examples/aws-100/video.yaml --mock-tts
+# → examples/aws-100/out/100パターンで学ぶ-aws.mp4
+```
+
 ## 必要環境
 
 - Bun ≥ 1.4 / ffmpeg / Chrome or Chromium (Linux は `BUN_CHROME_PATH` を設定)
