@@ -92,7 +92,7 @@ export async function recordTerminal(opts: RecordOptions): Promise<TcutResult> {
   const recOut = await new Response(rec.stdout).text();
   const recErr = await new Response(rec.stderr).text();
   if ((await rec.exited) !== 0) {
-    throw new Error(`tcut の収録に危敗しました:\n${recOut}\n${recErr}`);
+    throw new Error(`tcut の収録に失敗しました:\n${recOut}\n${recErr}`);
   }
 
   const rawPath = join(dir, "demo.mp4");
