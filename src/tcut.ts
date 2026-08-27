@@ -1,9 +1,9 @@
 /** tcut 統合: YAML の terminal 定義から .video.ts を自動生成して収録する */
 import { mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import type { TerminalCommand, TerminalConfig } from "./script.ts";
 import type { TerminalSlot } from "./frames/types.ts";
-import { contentHash, findChrome, logCache, logStage, logWarn, probeDuration } from "./util.ts";
+import { contentHash, findChrome, findGitBash, logCache, logStage, logWarn, probeDuration, withUnixToolsPath } from "./util.ts";
 
 export interface TcutResult {
   /** 尺調整済み mp4 の絶対パス */
@@ -83,12 +83,21 @@ export async function recordTerminal(opts: RecordOptions): Promise<TcutResult> {
   const scriptPath = join(dir, "demo.video.ts");
   await Bun.write(scriptPath, generateScript(terminal, slot));
 
-  const env: Record<string, string> = { ...process.env } as Record<string, string>;
+  let env: Record<string, string> = { ...process.env } as Record<string, string>;
   const chrome = findChrome();
   if (chrome && !env.BUN_CHROME_PATH) env.BUN_CHROME_PATH = chrome;
+  env = withUnixToolsPath(env);
+  if (process.platform === "win32" && !findGitBash()) {
+    throw new Error(
+      "Windows では tcut 収録に Git Bash が必要です。Git for Windows を導入してください\n" +
+        "  https://git-scm.com/download/win",
+    );
+  }
+
+  const tcutBin = join(dirname(Bun.resolveSync("termcut/package.json", import.meta.dir)), "bin", "tcut.mjs");
 
   logStage("tcut", `収録中… (${terminal.commands.length}コマンド)`);
-  const rec = Bun.spawn(["bunx", "tcut", "demo.video.ts"], {
+  const rec = Bun.spawn(["bun", tcutBin, "demo.video.ts"], {
     cwd: dir,
     env,
     stdout: "pipe",
@@ -117,7 +126,7 @@ export async function recordTerminal(opts: RecordOptions): Promise<TcutResult> {
     speed = 4;
   }
   const render = Bun.spawn(
-    ["bunx", "tcut", "render", "demo.cast", "--speed", speed.toFixed(2), "-o", "fitted.mp4"],
+    ["bun", tcutBin, "render", "demo.cast", "--speed", speed.toFixed(2), "-o", "fitted.mp4"],
     { cwd: dir, env, stdout: "pipe", stderr: "pipe" },
   );
   const rOut = await new Response(render.stdout).text();

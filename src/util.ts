@@ -1,4 +1,12 @@
+import { existsSync } from "node:fs";
+import { dirname, join, delimiter } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
+
+/** import.meta.url からの相対パスを OS ネイティブパスに変換 (Windows の `/C:/` 問題回避) */
+export function fromModuleUrl(rel: string, base: string): string {
+  return fileURLToPath(new URL(rel, base));
+}
 
 /** 安定した内容ハッシュ (キャッシュキー用) */
 export function contentHash(value: unknown): string {
@@ -60,19 +68,63 @@ export async function probeDuration(file: string): Promise<number> {
   return Number.parseFloat(out.trim());
 }
 
-/** 実行環境の Chrome バイナリを探す */
-export function findChrome(): string | null {
-  const candidates = [
-    process.env.BUN_CHROME_PATH,
-    process.env.PUPPETEER_EXECUTABLE_PATH,
-    "/usr/local/bin/google-chrome",
-    "/usr/bin/google-chrome",
-    "/usr/bin/chromium",
-    "/usr/bin/chromium-browser",
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  ];
+function firstExisting(candidates: Array<string | undefined>): string | null {
   for (const c of candidates) {
-    if (c && Bun.file(c).size > 0) return c;
+    if (c && existsSync(c)) return c;
   }
   return null;
+}
+
+/** 実行環境の Chrome / Chromium バイナリを探す */
+export function findChrome(): string | null {
+  const pf = process.env.PROGRAMFILES ?? "C:\\Program Files";
+  const pf86 = process.env["PROGRAMFILES(X86)"] ?? "C:\\Program Files (x86)";
+  const local = process.env.LOCALAPPDATA ?? "";
+  const home = process.env.HOME ?? process.env.USERPROFILE ?? "";
+  return firstExisting([
+    process.env.BUN_CHROME_PATH,
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    join(pf, "Google", "Chrome", "Application", "chrome.exe"),
+    join(pf86, "Google", "Chrome", "Application", "chrome.exe"),
+    local ? join(local, "Google", "Chrome", "Application", "chrome.exe") : undefined,
+    join(pf, "Microsoft", "Edge", "Application", "msedge.exe"),
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    home ? join(home, "Applications", "Google Chrome.app", "Contents", "MacOS", "Google Chrome") : undefined,
+    "/usr/local/bin/google-chrome",
+    "/usr/bin/google-chrome",
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+    "/snap/bin/chromium",
+    "/snap/bin/google-chrome",
+  ]);
+}
+
+/** Windows で tcut が bash を使うための Git Bash パス (WSL の bash.exe は使わない) */
+export function findGitBash(): string | null {
+  if (process.platform !== "win32") return null;
+  const pf = process.env.PROGRAMFILES ?? "C:\\Program Files";
+  const local = process.env.LOCALAPPDATA ?? "";
+  const home = process.env.USERPROFILE ?? "";
+  return firstExisting([
+    process.env.BUN_BASH_PATH,
+    join(pf, "Git", "bin", "bash.exe"),
+    join(pf, "Git", "usr", "bin", "bash.exe"),
+    home ? join(home, "scoop", "apps", "git", "current", "bin", "bash.exe") : undefined,
+    local ? join(local, "Programs", "Git", "bin", "bash.exe") : undefined,
+  ]);
+}
+
+/** Git for Windows の unix ツール (bash / mktemp) を PATH 先頭に足す */
+export function withUnixToolsPath(env: Record<string, string>): Record<string, string> {
+  const bash = findGitBash();
+  if (!bash) return env;
+  const gitBin = dirname(bash);
+  const gitRoot = dirname(gitBin);
+  const dirs = [gitBin, join(gitRoot, "usr", "bin"), join(gitRoot, "mingw64", "bin")];
+  const pathKey = Object.keys(env).find((k) => k.toLowerCase() === "path") ?? "PATH";
+  const current = env[pathKey] ?? "";
+  return { ...env, [pathKey]: `${dirs.join(delimiter)}${delimiter}${current}` };
 }

@@ -5,8 +5,8 @@ import { join } from "node:path";
 import { loadScript } from "./script.ts";
 import { renderPipeline, type RenderOptions, type Stage } from "./pipeline.ts";
 import { frames, framesByCategory, frameCount } from "./frames/index.ts";
-import { voicevoxAvailable, VOICEVOX_URL } from "./voicevox.ts";
-import { findChrome, logError, logStage } from "./util.ts";
+import { voicevoxAvailable, findVoicevoxEngine, ensureVoicevox, VOICEVOX_URL } from "./voicevox.ts";
+import { findChrome, findGitBash, fromModuleUrl, logError, logStage } from "./util.ts";
 
 const HELP = `popshot — tcut + HyperFrames + GSAP + VOICEVOX ショート動画工場
 
@@ -28,6 +28,7 @@ render options:
 
 環境変数:
   VOICEVOX_URL          VOICEVOX エンジン (既定: http://127.0.0.1:50021)
+  VOICEVOX_ENGINE       未起動時に自動起動する run.exe / run のパス
   BUN_CHROME_PATH       tcut 用 Chrome / PUPPETEER_EXECUTABLE_PATH: render 用 Chrome
 `;
 
@@ -157,6 +158,7 @@ async function cmdDoctor(): Promise<void> {
     ok: boolean;
     detail: string;
     fix?: string;
+    optional?: boolean;
   }
   const checks: Check[] = [];
 
@@ -171,7 +173,12 @@ async function cmdDoctor(): Promise<void> {
     name: "ffmpeg",
     ok: ffmpeg.exitCode === 0,
     detail: ffmpeg.exitCode === 0 ? (ffmpeg.stdout.toString().split("\n")[0] ?? "") : "見つかりません",
-    fix: "apt install ffmpeg / brew install ffmpeg",
+    fix:
+      process.platform === "win32"
+        ? "winget install Gyan.FFmpeg して PATH を通す"
+        : process.platform === "darwin"
+          ? "brew install ffmpeg"
+          : "sudo apt install ffmpeg (または dnf/pacman 相当)",
   });
 
   const chrome = findChrome();
@@ -179,8 +186,21 @@ async function cmdDoctor(): Promise<void> {
     name: "chrome",
     ok: chrome !== null,
     detail: chrome ?? "見つかりません",
-    fix: "Chrome/Chromium を導入し BUN_CHROME_PATH を設定 (tcut と render の両方で必要)",
+    fix:
+      process.platform === "linux"
+        ? "Chromium を導入し BUN_CHROME_PATH を設定 (tcut と render の両方で必要)"
+        : "Chrome / Chromium を導入 (通常は自動検出。だめなら BUN_CHROME_PATH)",
   });
+
+  if (process.platform === "win32") {
+    const bash = findGitBash();
+    checks.push({
+      name: "git-bash",
+      ok: bash !== null,
+      detail: bash ?? "見つかりません",
+      fix: "Git for Windows を導入 (tcut の bash / mktemp に必要) https://git-scm.com/download/win",
+    });
+  }
 
   for (const dep of ["termcut", "hyperframes", "gsap"]) {
     try {
@@ -191,15 +211,26 @@ async function cmdDoctor(): Promise<void> {
     }
   }
 
-  const vv = await voicevoxAvailable();
+  const engine = findVoicevoxEngine();
+  let vv = await voicevoxAvailable();
+  let vvErr = "";
+  if (!vv) {
+    try {
+      vv = await ensureVoicevox();
+    } catch (e) {
+      vvErr = e instanceof Error ? e.message.split("\n")[0]! : String(e);
+    }
+  }
   checks.push({
     name: "voicevox",
     ok: vv !== null,
-    detail: vv ? `${VOICEVOX_URL} (v${vv})` : `${VOICEVOX_URL} に接続できません`,
-    fix: "エンジンを起動するか VOICEVOX_URL を設定。なくても --mock-tts で動作します",
+    detail: vv ? `${VOICEVOX_URL} (v${vv})` : vvErr || `${VOICEVOX_URL} に接続できません`,
+    fix: engine
+      ? `手動起動: "${engine}" --host 127.0.0.1 --port 50021`
+      : "製品版 VOICEVOX か Docker を導入。非標準パスは VOICEVOX_ENGINE で指定",
   });
 
-  const seDir = new URL("../assets/se/", import.meta.url).pathname;
+  const seDir = fromModuleUrl("../assets/se/", import.meta.url);
   const seOk = await Bun.file(join(seDir, "pop.wav")).exists();
   checks.push({
     name: "se-assets",
@@ -208,19 +239,21 @@ async function cmdDoctor(): Promise<void> {
     fix: "bun run gen:se",
   });
 
-  const avatarOk = await Bun.file(new URL("../assets/avatar.png", import.meta.url).pathname).exists();
+  const avatarPath = fromModuleUrl("../assets/avatar.png", import.meta.url);
+  const avatarOk = await Bun.file(avatarPath).exists();
   checks.push({
     name: "avatar",
     ok: avatarOk,
     detail: avatarOk ? "assets/avatar.png" : "アバター画像がありません",
-    fix: "assets/avatar.png を配置 (または video.yaml で avatarImage を指定 / avatar: false)",
+    fix: "assets/avatar.png を配置するか bun run gen:avatar (または video.yaml で avatarImage を指定 / avatar: false)",
   });
 
   let allOk = true;
   for (const c of checks) {
-    console.log(`${c.ok ? "✅" : "❌"} ${c.name.padEnd(12)} ${c.detail}`);
+    const mark = c.ok ? "✅" : c.optional ? "⚠️ " : "❌";
+    console.log(`${mark} ${c.name.padEnd(12)} ${c.detail}`);
     if (!c.ok) {
-      allOk = false;
+      if (!c.optional) allOk = false;
       if (c.fix) console.log(`   → ${c.fix}`);
     }
   }
@@ -244,17 +277,17 @@ avatar: true
 
 scenes:
   - frame: hook/impact-zoom
-    narration: "○○、実は3ステップで理解できるのだ"
+    narration: "○○、実は3ステップで理解できます"
     props: { title: "○○を30秒で", badge: "初心者OK" }
 
   - frame: text/char-pop
-    narration: "まず大事なのはここなのだ"
+    narration: "まず大事なのはここです"
     props: { text: "ポイントは1つだけ", emphasis: "1つだけ" }
 
   - frame: transition/pill-bounce-wipe
 
   - frame: terminal/slide-in
-    narration: "実際にコマンドを叩いてみるのだ"
+    narration: "実際にコマンドを叩いてみます"
     props: { label: "ターミナル" }
     terminal:
       theme: catppuccin-mocha
@@ -264,13 +297,13 @@ scenes:
         - expect: "hello popshot"
 
   - frame: outro/follow-cta
-    narration: "フォローで毎日1分解説なのだ"
+    narration: "フォローで毎日1分、解説します"
     props: { message: "続きはフォローで!", buttonText: "フォロー" }
 `,
   );
   await Bun.write(join(dir, ".gitignore"), ".popshot/\nout/\n");
   logStage("init", `${yamlPath} を作成しました`);
-  logStage("init", `次: popshot render ${yamlPath} --mock-tts`);
+  logStage("init", `次: popshot render ${yamlPath}`);
 }
 
 async function main(): Promise<void> {

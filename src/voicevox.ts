@@ -1,5 +1,6 @@
 /** VOICEVOX エンジン連携 (audio_query → synthesis) と mock-tts フォールバック */
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
+import { dirname, join } from "node:path";
 import type { MoraTiming, VoiceResult } from "./types.ts";
 import { contentHash, logCache, logStage, probeDuration } from "./util.ts";
 
@@ -8,6 +9,7 @@ export const VOICEVOX_URL = process.env.VOICEVOX_URL ?? "http://127.0.0.1:50021"
 /** 1 モーラあたりの推定発話秒 (mock-tts 用)。ずんだもん実測から概算 */
 const MOCK_SEC_PER_CHAR = 0.135;
 const MOCK_PADDING = 0.25;
+const START_TIMEOUT_MS = 90_000;
 
 export async function voicevoxAvailable(): Promise<string | null> {
   try {
@@ -17,6 +19,153 @@ export async function voicevoxAvailable(): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+function voicevoxEndpoint(): URL {
+  return new URL(VOICEVOX_URL);
+}
+
+function isLocalVoicevox(): boolean {
+  return ["127.0.0.1", "localhost", "::1"].includes(voicevoxEndpoint().hostname);
+}
+
+/** 製品版 VOICEVOX / 単体エンジンの run バイナリを探す */
+export function findVoicevoxEngine(): string | null {
+  const env = process.env.VOICEVOX_ENGINE;
+  if (env && existsSync(env)) return env;
+  const home = process.env.USERPROFILE ?? process.env.HOME ?? "";
+  const pf = process.env.PROGRAMFILES ?? "C:\\Program Files";
+  const local = process.env.LOCALAPPDATA ?? "";
+  const macApp = (root: string) => join(root, "VOICEVOX.app", "Contents", "Resources", "vv-engine", "run");
+  const candidates = [
+    join(pf, "VOICEVOX", "vv-engine", "run.exe"),
+    local ? join(local, "Programs", "VOICEVOX", "vv-engine", "run.exe") : undefined,
+    join(home, "VOICEVOX", "vv-engine", "run.exe"),
+    macApp("/Applications"),
+    home ? macApp(join(home, "Applications")) : undefined,
+    join(home, ".local", "share", "VOICEVOX", "vv-engine", "run"),
+    join(home, "VOICEVOX", "vv-engine", "run"),
+    "/opt/VOICEVOX/vv-engine/run",
+    "/usr/local/VOICEVOX/vv-engine/run",
+    join(home, ".popshot", "voicevox_engine", "run.exe"),
+    join(home, ".popshot", "voicevox_engine", "run"),
+  ];
+  for (const c of candidates) {
+    if (c && existsSync(c)) return c;
+  }
+  return null;
+}
+
+function hasDocker(): boolean {
+  return Bun.spawnSync(["docker", "--version"], { stdout: "ignore", stderr: "ignore" }).exitCode === 0;
+}
+
+async function waitForVoicevox(timeoutMs: number): Promise<string | null> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const version = await voicevoxAvailable();
+    if (version) return version;
+    await Bun.sleep(400);
+  }
+  return null;
+}
+
+function spawnEngine(bin: string, port: number): { kill(): void; exitCode: number | null } {
+  const args = ["--host", "127.0.0.1", "--port", String(port), "--output_log_utf8"];
+  if (process.platform === "win32") {
+    // 親 CLI 終了後もエンジンを残す (通常の spawn だと Windows のジョブごと死ぬ)
+    const ps = `Start-Process -FilePath ${psQuote(bin)} -WorkingDirectory ${psQuote(dirname(bin))} -WindowStyle Hidden -ArgumentList ${args.map(psQuote).join(",")}`;
+    Bun.spawn(["powershell.exe", "-NoProfile", "-WindowStyle", "Hidden", "-Command", ps], {
+      stdout: "ignore",
+      stderr: "ignore",
+      stdin: "ignore",
+    });
+    return { kill() {}, exitCode: null };
+  }
+  const proc = Bun.spawn([bin, ...args], {
+    cwd: dirname(bin),
+    stdout: "ignore",
+    stderr: "ignore",
+    stdin: "ignore",
+    detached: true,
+  });
+  proc.unref();
+  return proc;
+}
+
+function psQuote(s: string): string {
+  return `'${s.replaceAll("'", "''")}'`;
+}
+
+function startDockerEngine(port: number): boolean {
+  const name = "popshot-voicevox";
+  const started = Bun.spawnSync(["docker", "start", name], { stdout: "ignore", stderr: "ignore" });
+  if (started.exitCode === 0) return true;
+  const run = Bun.spawnSync(
+    [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      name,
+      "-p",
+      `127.0.0.1:${port}:50021`,
+      "voicevox/voicevox_engine:cpu-latest",
+    ],
+    { stdout: "pipe", stderr: "pipe" },
+  );
+  return run.exitCode === 0;
+}
+
+/**
+ * ローカルの VOICEVOX が止まっていれば起動し、応答するまで待つ。
+ * 既に起動済みならそのまま使う。リモート URL の場合は起動しない。
+ */
+export async function ensureVoicevox(): Promise<string> {
+  const existing = await voicevoxAvailable();
+  if (existing) return existing;
+  if (!isLocalVoicevox()) {
+    throw new Error(
+      `VOICEVOX エンジン (${VOICEVOX_URL}) に接続できません。\n` +
+        `  - リモートのエンジンが起動しているか確認してください`,
+    );
+  }
+
+  const port = Number(voicevoxEndpoint().port || 50021);
+  const engine = findVoicevoxEngine();
+  if (engine) {
+    logStage("tts", `VOICEVOX エンジンを起動しています… (${engine})`);
+    const proc = spawnEngine(engine, port);
+    const version = await waitForVoicevox(START_TIMEOUT_MS);
+    if (version) return version;
+    if (proc.exitCode !== null) {
+      throw new Error(
+        `VOICEVOX エンジンが起動直後に終了しました (exit=${proc.exitCode})\n` +
+          `  手動起動: "${engine}" --host 127.0.0.1 --port ${port}`,
+      );
+    }
+    proc.kill();
+    throw new Error(
+      `VOICEVOX エンジンが ${START_TIMEOUT_MS / 1000} 秒以内に応答しませんでした\n` +
+        `  手動起動: "${engine}" --host 127.0.0.1 --port ${port}`,
+    );
+  }
+
+  if (hasDocker()) {
+    logStage("tts", "VOICEVOX エンジンを Docker で起動しています…");
+    if (!startDockerEngine(port)) {
+      throw new Error("docker run による VOICEVOX 起動に失敗しました");
+    }
+    const version = await waitForVoicevox(START_TIMEOUT_MS);
+    if (version) return version;
+    throw new Error("Docker 上の VOICEVOX が起動しましたが、API が応答しませんでした");
+  }
+
+  throw new Error(
+    `VOICEVOX エンジン (${VOICEVOX_URL}) に接続できません。\n` +
+      `  - 製品版 VOICEVOX を導入するか、VOICEVOX_ENGINE にエンジン (run.exe / run) のパスを設定してください\n` +
+      `  - Docker があれば voicevox/voicevox_engine:cpu-latest を自動起動します`,
+  );
 }
 
 interface VVMora {

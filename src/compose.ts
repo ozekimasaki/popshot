@@ -1,5 +1,5 @@
 /** compose: 台本 + TTS + tcut 素材から HyperFrames コンポジション HTML を生成する */
-import { cpSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type {
   CaptionChar,
@@ -13,7 +13,7 @@ import { THEME_COLORS } from "./types.ts";
 import type { LoadedScript } from "./script.ts";
 import type { VoiceResult } from "./types.ts";
 import { getFrame } from "./frames/index.ts";
-import { escapeHtml, logStage, logWarn, round3 } from "./util.ts";
+import { escapeHtml, fromModuleUrl, logStage, logWarn, round3 } from "./util.ts";
 
 const WIDTH = 1080;
 const HEIGHT = 1920;
@@ -74,7 +74,7 @@ export function computeTimings(script: LoadedScript, voices: VoiceResult[]): { t
 /** 字幕ページ分割: 句読点と文字数 (≤16) でページ化 */
 function splitPages(text: string): string[] {
   const MAX = 16;
-  const rough = text.split(/(?<=[、。!?!?\n])/).flatMap((seg) => {
+  const rough = text.split(/(?<=[、。!?!?！？\n])/).flatMap((seg) => {
     const s = seg.replace(/\n/g, "").trim();
     if (s === "") return [];
     if ([...s].length <= MAX) return [s];
@@ -272,7 +272,7 @@ export async function compose(input: ComposeInput): Promise<{ htmlPath: string; 
   }
 
   // ---- SE ファイルのコピー ----
-  const seSrcDir = new URL("../assets/se/", import.meta.url).pathname;
+  const seSrcDir = fromModuleUrl("../assets/se/", import.meta.url);
   for (const name of usedSe) {
     cpSync(join(seSrcDir, `${name}.wav`), join(assetsDir, "se", `${name}.wav`));
   }
@@ -288,19 +288,22 @@ export async function compose(input: ComposeInput): Promise<{ htmlPath: string; 
   }
 
   // ---- アバター ----
+  const bundledAvatar = fromModuleUrl("../assets/avatar.png", import.meta.url);
   let avatarHtml = "";
   if (config.avatar) {
     const avatarSrc = config.avatarImage
       ? config.avatarImage.startsWith("/")
         ? config.avatarImage
         : join(script.baseDir, config.avatarImage)
-      : new URL("../assets/avatar.png", import.meta.url).pathname;
-    if (!(await Bun.file(avatarSrc).exists())) throw new Error(`アバター画像が見つかりません: ${avatarSrc}`);
+      : bundledAvatar;
+    if (!(await Bun.file(avatarSrc).exists())) {
+      throw new Error(`アバター画像が見つかりません: ${avatarSrc}\n  bun run gen:avatar で既定画像を生成するか、avatar: false にしてください`);
+    }
     cpSync(avatarSrc, join(assetsDir, "avatar.png"));
     avatarHtml = `<div id="avatar-layer"><img id="avatar-img" src="assets/avatar.png" alt="" style="position:absolute;right:20px;bottom:150px;width:270px;"/></div>`;
-  } else {
+  } else if (existsSync(bundledAvatar)) {
     // トランジション avatar-jump-cut 用に画像だけは置いておく
-    cpSync(new URL("../assets/avatar.png", import.meta.url).pathname, join(assetsDir, "avatar.png"));
+    cpSync(bundledAvatar, join(assetsDir, "avatar.png"));
   }
 
   // ---- 字幕 ----
@@ -335,7 +338,7 @@ export async function compose(input: ComposeInput): Promise<{ htmlPath: string; 
   // ---- ランタイムバンドル ----
   // gsap 内部の Math.random 等を lint に誤検出させないため外部ファイルにし、
   // timeline の「登録」だけをインラインスクリプトで行う (lint はインラインのみ走査する)
-  const entry = new URL("./browser/entry.ts", import.meta.url).pathname;
+  const entry = fromModuleUrl("./browser/entry.ts", import.meta.url);
   const result = await Bun.build({ entrypoints: [entry], target: "browser", minify: true });
   if (!result.success) {
     throw new Error(`ランタイムのバンドルに失敗:\n${result.logs.map((l) => String(l)).join("\n")}`);
@@ -346,7 +349,7 @@ export async function compose(input: ComposeInput): Promise<{ htmlPath: string; 
   prepareFonts(buildDir);
 
   // ---- テーマ CSS ----
-  const themeCss = await Bun.file(new URL("./theme/sanrio.css", import.meta.url).pathname).text();
+  const themeCss = await Bun.file(fromModuleUrl("./theme/sanrio.css", import.meta.url)).text();
 
   const manifestJson = JSON.stringify(manifest).replaceAll("</", "<\\/");
 

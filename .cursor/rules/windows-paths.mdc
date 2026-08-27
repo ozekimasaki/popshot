@@ -1,0 +1,17 @@
+---
+description: Windows では file URL の pathname をそのままファイルパスに使わない
+globs: src/**/*.ts, scripts/**/*.ts
+alwaysApply: false
+---
+
+- **モジュール相対パスは `fromModuleUrl()` / `fileURLToPath()` を使う**
+- `new URL(rel, import.meta.url).pathname` は Windows で `/C:/...` になり `cpSync` / `mkdirSync` / `Bun.file` が失敗する
+
+```typescript
+// ✅ DO
+import { fromModuleUrl } from "./util.ts";
+const seDir = fromModuleUrl("../assets/se/", import.meta.url);
+
+// ❌ DON'T
+const seDir = new URL("../assets/se/", import.meta.url).pathname;
+```

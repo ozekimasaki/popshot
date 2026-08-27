@@ -114,7 +114,7 @@ export const avatarBow = defineFrame({
   description: "アバターが中央に大きく登場してぺこりとお辞儀する挨拶エンド",
   propsDoc: "message: 挨拶文",
   minDuration: 2.6,
-  propsSchema: z.object({ message: z.string().default("ご視聴ありがとうなのだ!") }),
+  propsSchema: z.object({ message: z.string().default("ご視聴ありがとうございました!") }),
   html: (p, ctx) =>
     stage(
       `<img class="ot-ava" src="assets/avatar.png" alt="" style="width:560px;filter:drop-shadow(0 20px 44px rgba(0,0,0,0.14));"/>

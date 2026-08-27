@@ -21,18 +21,13 @@
 
 ```sh
 bun install
-bun run gen:se && bun run gen:bgm          # SE/BGM を合成 (clone 直後に一度だけ)
+bun run gen:se && bun run gen:bgm && bun run gen:avatar
 bun run src/cli.ts doctor                 # 依存診断
 bun run src/cli.ts init myvideo           # 台本雛形を生成
-bun run src/cli.ts render myvideo/video.yaml --mock-tts   # VOICEVOXなしでまず1本
-```
-
-VOICEVOX エンジン (`http://127.0.0.1:50021`) を起動すれば `--mock-tts` なしで実音声になります:
-
-```sh
-docker run --rm -p 50021:50021 voicevox/voicevox_engine:cpu-latest
 bun run src/cli.ts render myvideo/video.yaml
 ```
+
+製品版 VOICEVOX または Docker が入っていれば、止まっていても `render` / `doctor` がエンジンを自動起動します (Windows / macOS / Linux)。`--mock-tts` は構図デバッグ専用です。
 
 ## サンプル動画
 
@@ -48,8 +43,9 @@ bun run src/cli.ts render examples/git-30sec/video.yaml
 ## 必要環境
 
 - Bun ≥ 1.4 / ffmpeg / Chrome or Chromium (Linux は `BUN_CHROME_PATH` を設定)
-- VOICEVOX エンジン (任意。なければ `--mock-tts`)
-- 右下アバターを使う場合は `assets/avatar.png` を配置 (台本の `avatarImage:` で差し替え可)
+- VOICEVOX エンジン (**必須**。製品版 or Docker。未起動なら CLI が自動起動)
+- Windows の tcut 用に Git for Windows (Git Bash)
+- 右下アバターを使う場合は `bun run gen:avatar` または `assets/avatar.png`
 
 詳細は [.cursor/skills/popshot-setup/SKILL.md](.cursor/skills/popshot-setup/SKILL.md)。
 

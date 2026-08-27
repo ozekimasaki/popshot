@@ -1,0 +1,133 @@
+# Cursor Changelog 2026-08-19
+# https://cursor.com/ja/changelog/08-19-26
+title: "Cursor 8/19 アップデート"
+theme: purple
+speaker: 20
+speedScale: 1.15
+avatar: true
+avatarImage: avatar.png
+bgm: ../../assets/bgm/pop-loop.wav
+
+# 口調: 桜草メイプロジェクト/characters/mei.md (温かい です・ます、気遣いの締め)
+# 各機能の前に stat/big-number-slam の区切りシーン (①〜⑤) を挟む
+# narration の句読点 (、。!?) が字幕ページ (16文字/ページ) の切れ目になるよう設計
+scenes:
+  # 何の更新かを即明示
+  - frame: hook/impact-zoom
+    narration: "わわっ！Cursorの更新です"
+    props: { title: "Cursor 8/19", badge: "アップデート" }
+
+  # 目次: 5つの新機能を先に提示
+  - frame: list/checklist-pop
+    narration: "新機能は5つ。順にご紹介します"
+    props:
+      title: "8/19 の新機能"
+      items: ["①サブスクリプション", "②カスタムモード", "③専用VMサブエージェント", "④/goal", "⑤ステアリング改善"]
+
+  # ① 区切り
+  - frame: stat/big-number-slam
+    narration: "まず1つ目。サブスクリプションです"
+    props: { value: "①", label: "サブスクリプション" }
+
+  # ① 仕組み
+  - frame: diagram/flow-arrows
+    narration: "PRやSlackを購読すると、変更で自動で再開します"
+    props:
+      title: "① サブスクリプション"
+      nodes: ["PR・Slackを購読", "変更を検知", "エージェントが自動再開"]
+
+  # ① 提供範囲の注記
+  - frame: text/underline-sweep
+    narration: "今のところ、クラウドエージェント限定です"
+    props: { text: "現時点ではクラウドエージェントのみ", emphasis: "クラウドエージェントのみ" }
+
+  # ① 購読すると何をしてくれるか
+  - frame: list/step-ladder
+    narration: "すごいですね！CI修正もbot対応も、完了までやります"
+    props:
+      title: "① サブスクの動き"
+      items: ["PRを自動購読", "CIを修正", "botコメントに対応", "完了まで進める"]
+
+  # ① Slack 例: 何の続きを頼めるのかを明示
+  - frame: code/copy-paste-flash
+    narration: "Slackから、フィードバックが来るまで、続きを頼めます"
+    props:
+      label: "Slackに送るだけ"
+      code: "@cursor check back in an hour and keep going until that feedback is in"
+
+  # 理解度チェック
+  - frame: quiz/true-false
+    narration: "問題です。作ったPRは自動で購読される?"
+    props: { question: "作ったPRは自動で購読される?", answer: 0 }
+
+  # ② 区切り
+  - frame: stat/big-number-slam
+    narration: "2つ目は、カスタムモードです"
+    props: { value: "②", label: "カスタムモード" }
+
+  # ② 何の機能か
+  - frame: text/char-pop
+    narration: "スキルを常に有効にして、集中させる機能です"
+    props: { text: "② カスタムモード = 常に有効なスキル", emphasis: "常に有効" }
+
+  # ② 使い方
+  - frame: code/copy-paste-flash
+    narration: "スラッシュから選んで、Alt+Enterを押します"
+    props:
+      label: "モードとして使う"
+      code: "/から選んで Alt+Enter (Win) / ⌥⏎ (Mac)"
+
+  # ③ 区切り
+  - frame: stat/big-number-slam
+    narration: "3つ目は、専用VMのサブエージェントです"
+    props: { value: "③", label: "専用VMサブエージェント" }
+
+  # ③ 何の機能か + 構造
+  - frame: diagram/layer-stack
+    narration: "サブエージェントは、それぞれ専用のVMで動きます"
+    props:
+      title: "③ サブエージェントの実行環境"
+      layers: ["専用クラウドVM", "隔離されたプロジェクト", "クリーンなコンテキスト"]
+
+  # ③ 何に使うか
+  - frame: list/checklist-pop
+    narration: "親の変更のテストや、競合なしの並走に使えます"
+    props:
+      title: "③ の使い道"
+      items: ["親の変更を新環境でテスト", "独立した修正をスウォーム"]
+
+  # ④ 区切り
+  - frame: stat/big-number-slam
+    narration: "4つ目は、スラッシュゴールです"
+    props: { value: "④", label: "/goal" }
+
+  # ④ 何の機能か + 例を日本語で解説
+  - frame: code/typing-reveal
+    narration: "完了まで粘る目標です。例えば、不安定なテストを直して、CIを緑にと頼みます"
+    props:
+      title: "新しいチャットで"
+      code: "/goal fix all flaky tests and make CI green"
+
+  # ⑤ 区切り
+  - frame: stat/big-number-slam
+    narration: "5つ目は、ステアリングの改善です"
+    props: { value: "⑤", label: "ステアリング改善" }
+
+  # ⑤ 中断しない仕組み + 送信操作
+  - frame: text/vertical-drop
+    narration: "指示は中断せず、次のツール呼び出しで届きます。Enter2回で即送信です"
+    props: { text: "⑤ ステアリング: 中断させずに誘導" }
+
+  - frame: transition/pastel-confetti
+
+  # 5機能のまとめ
+  - frame: outro/recap-cards
+    narration: "8月19日のまとめです"
+    props:
+      title: "Cursor 8/19 まとめ"
+      items: ["①購読で自動再開", "②スキル常時固定", "③専用VMで並走", "④/goalで完遂", "⑤中断せず誘導"]
+
+  # メイらしい気遣いの締め
+  - frame: outro/follow-cta
+    narration: "詳細は公式チェンジログで。お茶でも飲んで、ゆっくりどうぞ"
+    props: { message: "Cursor 8/19 アップデート", buttonText: "Changelog" }

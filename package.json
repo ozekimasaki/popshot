@@ -10,6 +10,7 @@
     "popshot": "bun run src/cli.ts",
     "gen:se": "bun run scripts/gen-se.ts",
     "gen:bgm": "bun run scripts/gen-bgm.ts",
+    "gen:avatar": "bun run scripts/gen-avatar.ts",
     "gen:frames-doc": "bun run scripts/gen-frames-doc.ts",
     "test": "bun test"
   },
@@ -27,6 +28,7 @@
   },
   "trustedDependencies": [
     "@google/genai",
+    "esbuild",
     "onnxruntime-node",
     "protobufjs"
   ]

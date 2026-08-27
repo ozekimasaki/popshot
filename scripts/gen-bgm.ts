@@ -1,9 +1,11 @@
 #!/usr/bin/env bun
 /** かわいいポップ調のチップチューン BGM ループ (16秒) を合成する */
 import { mkdirSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { buffer, noise, tone, writeWav } from "./lib/synth.ts";
 
-const OUT = new URL("../assets/bgm/", import.meta.url).pathname;
+const OUT = fileURLToPath(new URL("../assets/bgm/", import.meta.url));
 mkdirSync(OUT, { recursive: true });
 
 const BPM = 128;
@@ -76,5 +78,5 @@ for (let bar = 0; bar < BARS; bar++) {
   }
 }
 
-await writeWav(`${OUT}pop-loop.wav`, b);
-console.log(`wrote ${OUT}pop-loop.wav (${TOTAL.toFixed(1)}s)`);
+await writeWav(join(OUT, "pop-loop.wav"), b);
+console.log(`wrote ${join(OUT, "pop-loop.wav")} (${TOTAL.toFixed(1)}s)`);

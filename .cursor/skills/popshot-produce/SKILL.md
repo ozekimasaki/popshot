@@ -1,36 +1,56 @@
 ---
 name: popshot-produce
-description: popshot でトピックから技術解説ショート動画 (1080x1920 MP4) を量産するエンドツーエンド手順。台本 YAML の書き方、ショート構成のセオリー、フレーム選定、レンダリングと失敗時の対処を含む。「ショート動画を作って」「〜を解説する動画」「popshot で動画」等の依頼で必ず読む。
+description: popshot でトピックから技術解説ショート動画 (1080x1920 MP4) を量産するエンドツーエンド手順。VOICEVOX 実音声が前提。台本 YAML、ショート構成、フレーム選定、レンダリングと失敗時の対処。「ショート動画を作って」「〜を解説する動画」「popshot で動画」等の依頼で必ず読む。
 ---
 
 # popshot でショート動画を作る
 
-popshot は 台本 YAML → VOICEVOX 音声 → tcut ターミナル収録 → HyperFrames レンダリング を
-**1コマンドで**通すショート動画工場。リポジトリルートで作業する。
+popshot は 台本 YAML → **VOICEVOX 実音声** → tcut ターミナル収録 → HyperFrames レンダリング を
+**1コマンドで**通すショート動画工場。リポジトリルートで作業する。Windows / macOS / Linux 共通。
+
+コマンドは OS を問わず `bun run src/cli.ts …`。PowerShell でも bash でも同じ。
+
+## 前提 (VOICEVOX 起動)
+
+納品動画は **実音声**。`--mock-tts` は付けない (無音になる)。
+
+1. `bun run src/cli.ts doctor` を実行する。未起動ならエンジンを自動起動する。
+2. `voicevox` が ✅ になるまで [popshot-setup](../popshot-setup/SKILL.md) で導入する (製品版 or Docker)。
+3. そのあと `render` する。
+
+`VOICEVOX エンジンに接続できません` で止まっても `--mock-tts` にフォールバックしない。セットアップを直す。
 
 ## エンドツーエンド手順
 
-1. **前提確認**: `bun run src/cli.ts doctor`。VOICEVOX が NG でも `--mock-tts` で全工程が動く (無音になるだけ)。
-2. **フレームカタログを読む**: `bun run src/cli.ts frames --json` で 100 フレームの id / 説明 / props 仕様を取得。
-3. **台本 YAML を書く** (下記セオリー参照)。`bun run src/cli.ts init mydir` で雛形生成も可。
-4. **レンダリング**: `bun run src/cli.ts render mydir/video.yaml`。出力は `mydir/out/<title-slug>.mp4`。
-5. **確認**: 出力 MP4 をフレーム抽出 (`ffmpeg -i out.mp4 -vf fps=1/2,scale=270:480 f%02d.png`) して構図を確認。
-6. 量産時は 1 ディレクトリ 1 台本にして `bun run src/cli.ts batch videos/`。
+1. **doctor**: 全項目 ✅ (voicevox 含む)
+2. **フレームカタログ**: `bun run src/cli.ts frames --json` (id / 説明 / props)。件数確認に `jq` は使わない (Windows に無い)
+3. **台本 YAML** (下記セオリー)。`bun run src/cli.ts init mydir` で雛形可
+4. **レンダリング**: `bun run src/cli.ts render mydir/video.yaml`
+   出力は `mydir/out/<title-slug>.mp4`
+5. **確認**: 出力ディレクトリで
 
-TTS と tcut は内容ハッシュでキャッシュされるので、台本を少し直して再実行しても速い。
+   ```sh
+   ffmpeg -i out.mp4 -vf fps=1/2,scale=270:480 f%02d.png
+   ```
+
+   (パスに空白や日本語があるときは `ffmpeg -i "その.mp4" ...`)
+6. 量産は 1 ディレクトリ 1 台本で `bun run src/cli.ts batch videos/`
+
+TTS と tcut は内容ハッシュでキャッシュされる。台本を少し直して再実行しても速い。
 
 ## 台本 YAML の書き方
 
 ```yaml
 title: "30秒でわかる ○○"        # 出力ファイル名にもなる
 theme: cyan                      # cyan/pink/purple/yellow/green/coral (動画全体の世界観色)
-speaker: 3                       # VOICEVOX 話者id (3=ずんだもん)。ずんだもんなら語尾「なのだ」
+speaker: 3                       # VOICEVOX 話者id。一覧はエンジン起動後に $VOICEVOX_URL/speakers
 speedScale: 1.15                 # ショートは 1.1〜1.3 推奨
 avatar: true                     # 右下アバター
+avatarImage: avatar.png          # 任意。キャラ画像 (yaml からの相対パス)。透過PNG推奨
 bgm: ../../assets/bgm/pop-loop.wav   # 任意 (yaml からの相対パス)
 scenes:
   - frame: hook/impact-zoom      # popshot frames の id
-    narration: "読み上げる文"     # 字幕もこれから自動生成 (caption: で上書き可)
+    narration: "読み上げる文"     # 字幕もこれから自動生成。caption: で上書きする場合も音声と同じ文にする (別文を字幕に出さない)
     props: { title: "画面に出す見出し" }
     # duration: 3.0              # 任意。省略時は VO 尺 + 0.45s
     # se: [{ at: 0.2, name: pop }]  # 任意。省略時はフレーム既定 SE
@@ -47,16 +67,19 @@ scenes:
 - 2〜3 シーンごとに transition を 1 枚挟む (narration 不要、勝手に 0.4s 前シーンに重なる)
 - 中盤に quiz を 1 つ入れると離脱が減る (choice-3 / true-false / fill-blank)
 - **最後は必ず outro カテゴリ** (follow-cta / next-teaser / question-to-comments 等)
-- narration は 1 シーン 1 メッセージ。1 文 30 文字以内、体言止めか「〜なのだ」調で統一
+- narration は 1 シーン 1 メッセージ。口調はキャラクター定義ファイル (characters/*.md 等) があればその台詞テンプレに従う。なければ標準語 (です・ます / 体言止め) で統一し、キャラ語尾の既定は設けない
+- 句読点 (、。!?！？) が字幕ページ (16文字/ページ) の切れ目になる。語の途中で切れないよう句読点位置を設計する
+- 複数項目を紹介する動画では、各項目の前に**区切りシーン**を挟む (stat/big-number-slam に ①②… と項目名、narration は「Nつ目は、〇〇です」)。冒頭に目次シーン (list/checklist-pop) も置くと迷子にならない
 - 強調したい単語は text 系フレームの `emphasis` に必ず渡す
 
 ## terminal シーン (tcut 自動収録)
 
-terminal カテゴリのフレームには `terminal:` 定義が必須。CLI が tcut スクリプトを自動生成して収録する:
+terminal カテゴリのフレームには `terminal:` 定義が必須。CLI が tcut スクリプトを自動生成して収録する。
+コマンドは **bash** で実行される。Windows では popshot が Git Bash を使う (`mktemp` や `&&` がそのまま書ける)。
 
 ```yaml
 - frame: terminal/slide-in
-  narration: "実際に叩いてみるのだ"
+  narration: "実際に叩いてみます"
   props: { label: "実演" }
   terminal:
     theme: catppuccin-mocha      # tcut themes で一覧
@@ -77,8 +100,8 @@ terminal カテゴリのフレームには `terminal:` 定義が必須。CLI が
 
 | 症状 | 対処 |
 |---|---|
-| `VOICEVOX エンジンに接続できません` | popshot-setup スキル参照。急ぐなら `--mock-tts` |
-| `hyperframes lint が失敗` | 生成 HTML の問題。`.popshot/build/index.html` を確認し、フレーム実装の規約違反 (popshot-frames スキル) を疑う |
-| tcut 収録失敗 | `BUN_CHROME_PATH` 未設定か、commands の expect が一致していない。`--only tcut` で単体デバッグ |
-| 途中ステージだけ実行したい | `--only tts|tcut|compose|check|render` |
-| 画の確認だけしたい | `bun run src/cli.ts preview video.yaml` (Studio が起動) |
+| `VOICEVOX エンジンに接続できません` | [popshot-setup](../popshot-setup/SKILL.md)。製品版 or Docker。`--mock-tts` で納品しない |
+| `hyperframes lint が失敗` | `.popshot/build/index.html` と [popshot-frames](../popshot-frames/SKILL.md) の規約違反を疑う |
+| tcut 収録失敗 | Linux は `BUN_CHROME_PATH`。Windows は Git Bash。`expect` 不一致は `--only tcut` で単体デバッグ |
+| 途中ステージだけ実行したい | `--only tts\|tcut\|compose\|check\|render` |
+| 画の確認だけしたい | `bun run src/cli.ts preview video.yaml` (Studio が起動)。音声は doctor 済みなら実 TTS |

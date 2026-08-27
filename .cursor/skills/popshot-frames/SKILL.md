@@ -1,6 +1,6 @@
 ---
 name: popshot-frames
-description: popshot の100フレーム (シーンテンプレート) カタログの引き方・選び方と、新規フレームの追加方法。HyperFrames の決定論制約 (fromTo必須・autoAlpha・有限repeat・シード乱数) とドーパミン設計規約を含む。フレームの選定・カスタマイズ・追加を行うときに読む。
+description: popshot の100フレーム (シーンテンプレート) カタログの引き方・選び方と、新規フレームの追加方法。HyperFrames の決定論制約 (fromTo必須・autoAlpha・有限repeat・シード乱数) とドーパミン設計規約を含む。検証レンダリングは VOICEVOX 実音声 (Windows / macOS / Linux)。フレームの選定・カスタマイズ・追加を行うときに読む。
 ---
 
 # popshot のフレームを使う・作る
@@ -29,8 +29,8 @@ description: popshot の100フレーム (シーンテンプレート) カタロ�
 ## 新規フレームの追加手順
 
 1. `src/frames/<category>.ts` に `defineFrame({...})` を追加し、末尾の `<category>Frames` 配列に登録する
-2. `bun run src/cli.ts frames --json | jq length` が増えていることを確認
-3. サンプル台本でレンダリングし `hyperframes lint` 0 エラーを確認
+2. `bun run src/cli.ts frames --json` で件数が増えていることを確認 (`jq` に依存しない。Windows でも同じ)
+3. サンプル台本を **`--mock-tts` なし** でレンダリングし、`hyperframes lint` 0 エラーを確認 (VOICEVOX は doctor で自動起動済みであること)
 
 ```ts
 export const myFrame = defineFrame({

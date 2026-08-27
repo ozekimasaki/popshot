@@ -1,9 +1,11 @@
 #!/usr/bin/env bun
 /** SE 12種を決定論的に合成して assets/se/ に書き出す */
 import { mkdirSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { buffer, noise, tone, writeWav } from "./lib/synth.ts";
 
-const OUT = new URL("../assets/se/", import.meta.url).pathname;
+const OUT = fileURLToPath(new URL("../assets/se/", import.meta.url));
 mkdirSync(OUT, { recursive: true });
 
 type Gen = () => Float32Array;
@@ -100,7 +102,7 @@ const generators: Record<string, Gen> = {
 };
 
 for (const [name, gen] of Object.entries(generators)) {
-  const path = `${OUT}${name}.wav`;
+  const path = join(OUT, `${name}.wav`);
   await writeWav(path, gen());
   console.log(`wrote ${path}`);
 }

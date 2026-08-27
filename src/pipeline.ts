@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import type { LoadedScript } from "./script.ts";
 import type { VoiceResult } from "./types.ts";
-import { synthesize, voicevoxAvailable, VOICEVOX_URL } from "./voicevox.ts";
+import { synthesize, ensureVoicevox } from "./voicevox.ts";
 import { recordTerminal, type TcutResult } from "./tcut.ts";
 import { compose, computeTimings } from "./compose.ts";
 import { getFrame } from "./frames/index.ts";
@@ -31,7 +31,11 @@ function hyperframesBin(): string {
 async function runHyperframes(args: string[], cwd: string): Promise<{ code: number; out: string }> {
   const env: Record<string, string> = { ...process.env } as Record<string, string>;
   const chrome = findChrome();
-  if (chrome && !env.PUPPETEER_EXECUTABLE_PATH) env.PUPPETEER_EXECUTABLE_PATH = chrome;
+  if (chrome) {
+    if (!env.PUPPETEER_EXECUTABLE_PATH) env.PUPPETEER_EXECUTABLE_PATH = chrome;
+    if (!env.HYPERFRAMES_BROWSER_PATH) env.HYPERFRAMES_BROWSER_PATH = chrome;
+    if (!env.BUN_CHROME_PATH) env.BUN_CHROME_PATH = chrome;
+  }
   const proc = Bun.spawn(["bun", hyperframesBin(), ...args], {
     cwd,
     env,
@@ -50,14 +54,7 @@ export async function renderPipeline(script: LoadedScript, opts: RenderOptions):
   // ---- 1. TTS ----
   let mock = opts.mockTts;
   if (!mock) {
-    const version = await voicevoxAvailable();
-    if (!version) {
-      throw new Error(
-        `VOICEVOX エンジン (${VOICEVOX_URL}) に接続できません。\n` +
-          `  - エンジンを起動するか、VOICEVOX_URL を設定してください\n` +
-          `  - 音声なしで試すには --mock-tts を付けてください (無音+推定尺で全パイプラインが動きます)`,
-      );
-    }
+    const version = await ensureVoicevox();
     logStage("tts", `VOICEVOX ${version} / 話者 ${script.config.speaker} / 速度 ${script.config.speedScale}`);
   }
   const voices: VoiceResult[] = [];
