@@ -46,7 +46,7 @@ theme: cyan                      # cyan/pink/purple/yellow/green/coral (動画�
 speaker: 3                       # VOICEVOX 話者id。一覧はエンジン起動後に $VOICEVOX_URL/speakers
 speedScale: 1.15                 # ショートは 1.1〜1.3 推奨
 avatar: true                     # 右下アバター
-avatarImage: avatar.png          # 任意。キャラ画像 (yaml からの相対パス)。透過PNG推奨
+avatarImage: ../../assets/avatar-mei.png  # キャラ画像 (yaml からの相対パス)。このリポジトリの既定は assets/avatar-mei.png (桜草メイ)
 bgm: ../../assets/bgm/pop-loop.wav   # 任意 (yaml からの相対パス)
 scenes:
   - frame: hook/impact-zoom      # popshot frames の id
@@ -67,7 +67,7 @@ scenes:
 - 2〜3 シーンごとに transition を 1 枚挟む (narration 不要、勝手に 0.4s 前シーンに重なる)
 - 中盤に quiz を 1 つ入れると離脱が減る (choice-3 / true-false / fill-blank)
 - **最後は必ず outro カテゴリ** (follow-cta / next-teaser / question-to-comments 等)
-- narration は 1 シーン 1 メッセージ。口調はキャラクター定義ファイル (characters/*.md 等) があればその台詞テンプレに従う。なければ標準語 (です・ます / 体言止め) で統一し、キャラ語尾の既定は設けない
+- narration は 1 シーン 1 メッセージ。口調はキャラクター定義ファイルに従う (このリポジトリの既定は `characters/mei.md` = 桜草メイ。温かい です・ます調、気遣いの締め)。定義がなければ標準語 (です・ます / 体言止め) で統一し、キャラ語尾の既定は設けない
 - 句読点 (、。!?！？) が字幕ページ (16文字/ページ) の切れ目になる。語の途中で切れないよう句読点位置を設計する
 - 複数項目を紹介する動画では、各項目の前に**区切りシーン**を挟む (stat/big-number-slam に ①②… と項目名、narration は「Nつ目は、〇〇です」)。冒頭に目次シーン (list/checklist-pop) も置くと迷子にならない
 - 強調したい単語は text 系フレームの `emphasis` に必ず渡す

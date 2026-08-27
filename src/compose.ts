@@ -289,21 +289,24 @@ export async function compose(input: ComposeInput): Promise<{ htmlPath: string; 
 
   // ---- アバター ----
   const bundledAvatar = fromModuleUrl("../assets/avatar.png", import.meta.url);
+  // このリポジトリの既定アバターは桜草メイ (assets/avatar-mei.png)。無ければ汎用画像にフォールバック
+  const meiAvatar = fromModuleUrl("../assets/avatar-mei.png", import.meta.url);
+  const defaultAvatar = existsSync(meiAvatar) ? meiAvatar : bundledAvatar;
   let avatarHtml = "";
   if (config.avatar) {
     const avatarSrc = config.avatarImage
       ? config.avatarImage.startsWith("/")
         ? config.avatarImage
         : join(script.baseDir, config.avatarImage)
-      : bundledAvatar;
+      : defaultAvatar;
     if (!(await Bun.file(avatarSrc).exists())) {
       throw new Error(`アバター画像が見つかりません: ${avatarSrc}\n  bun run gen:avatar で既定画像を生成するか、avatar: false にしてください`);
     }
     cpSync(avatarSrc, join(assetsDir, "avatar.png"));
     avatarHtml = `<div id="avatar-layer"><img id="avatar-img" src="assets/avatar.png" alt="" style="position:absolute;right:20px;bottom:150px;width:270px;"/></div>`;
-  } else if (existsSync(bundledAvatar)) {
+  } else if (existsSync(defaultAvatar)) {
     // トランジション avatar-jump-cut 用に画像だけは置いておく
-    cpSync(bundledAvatar, join(assetsDir, "avatar.png"));
+    cpSync(defaultAvatar, join(assetsDir, "avatar.png"));
   }
 
   // ---- 字幕 ----

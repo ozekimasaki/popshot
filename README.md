@@ -1,6 +1,7 @@
 # popshot 🎀
 
 **tcut + HyperFrames + GSAP + VOICEVOX** で技術解説ショート動画 (1080x1920) を量産するショート工場CLI。
+解説キャラクターは **桜草メイ** (口調定義: [characters/mei.md](characters/mei.md)、アバター: `assets/avatar-mei.png`)。
 
 台本 YAML を 1 枚書けば、`popshot render` の 1 コマンドで
 
@@ -45,7 +46,7 @@ bun run src/cli.ts render examples/git-30sec/video.yaml
 - Bun ≥ 1.4 / ffmpeg / Chrome or Chromium (Linux は `BUN_CHROME_PATH` を設定)
 - VOICEVOX エンジン (**必須**。製品版 or Docker。未起動なら CLI が自動起動)
 - Windows の tcut 用に Git for Windows (Git Bash)
-- 右下アバターを使う場合は `bun run gen:avatar` または `assets/avatar.png`
+- 右下アバターは `assets/avatar-mei.png` (桜草メイ) が既定。汎用画像は `bun run gen:avatar` で `assets/avatar.png` を生成
 
 詳細は [.cursor/skills/popshot-setup/SKILL.md](.cursor/skills/popshot-setup/SKILL.md)。
 

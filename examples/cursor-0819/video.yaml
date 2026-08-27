@@ -4,8 +4,7 @@ title: "Cursor 8/19 アップデート"
 theme: purple
 speaker: 20
 speedScale: 1.15
-avatar: true
-avatarImage: avatar.png
+avatar: true                     # アバター画像は既定の assets/avatar-mei.png (桜草メイ)
 bgm: ../../assets/bgm/pop-loop.wav
 
 # 口調: 桜草メイプロジェクト/characters/mei.md (温かい です・ます、気遣いの締め)
