@@ -45,6 +45,7 @@ bun run src/cli.ts render examples/git-30sec/video.yaml
 
 - Bun ≥ 1.4 / ffmpeg / Chrome or Chromium (Linux は `BUN_CHROME_PATH` を設定)
 - VOICEVOX エンジン (**必須**。製品版 or Docker。未起動なら CLI が自動起動)
+- (任意) メイ LoRA 声で合成する場合は Colab + google-colab-cli。学習は [notebooks/train_mei_lora.ipynb](notebooks/train_mei_lora.ipynb) を Colab UI で実行し、台本で `tts.engine: irodori-colab` を指定
 - Windows の tcut 用に Git for Windows (Git Bash)
 - 右下アバターは `assets/avatar-mei.png` (桜草メイ) が既定。汎用画像は `bun run gen:avatar` で `assets/avatar.png` を生成
 

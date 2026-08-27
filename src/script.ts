@@ -54,11 +54,24 @@ const sceneSchema = z.object({
 
 export type SceneConfig = z.infer<typeof sceneSchema>;
 
+const ttsSchema = z.object({
+  /** 音声合成エンジン。voicevox = ローカル VOICEVOX / irodori-colab = Colab 上の Irodori-TTS */
+  engine: z.enum(["voicevox", "irodori-colab"]).default("voicevox"),
+  /** irodori-colab: モデル (ローカル safetensors パス or hf:<repo/id>) */
+  model: z.string().default(""),
+  /** irodori-colab: Colab の GPU 種別 */
+  gpu: z.string().default("T4"),
+  /** irodori-colab: スタイルキャプション (任意) */
+  caption: z.string().default(""),
+});
+
 const videoSchema = z.object({
   title: z.string().min(1),
   theme: z.enum(["cyan", "pink", "purple", "yellow", "green", "coral"]).default("cyan"),
-  /** VOICEVOX 話者id (既定: ずんだもん ノーマル) */
+  /** VOICEVOX 話者id (engine: voicevox 時のみ有効) */
   speaker: z.number().int().min(0).default(3),
+  /** 音声合成エンジン設定 */
+  tts: ttsSchema.default({ engine: "voicevox", model: "", gpu: "T4", caption: "" }),
   /** 読み上げ速度 (ショート向けに速め既定) */
   speedScale: z.number().min(0.5).max(2).default(1.15),
   /** BGM ファイルパス (yaml からの相対)。省略可 */

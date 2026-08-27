@@ -4,6 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import type { LoadedScript } from "./script.ts";
 import type { VoiceResult } from "./types.ts";
 import { synthesize, ensureVoicevox } from "./voicevox.ts";
+import { synthesizeBatchIrodori } from "./irodori.ts";
 import { recordTerminal, type TcutResult } from "./tcut.ts";
 import { compose, computeTimings } from "./compose.ts";
 import { getFrame } from "./frames/index.ts";
@@ -53,22 +54,37 @@ export async function renderPipeline(script: LoadedScript, opts: RenderOptions):
 
   // ---- 1. TTS ----
   let mock = opts.mockTts;
-  if (!mock) {
-    const version = await ensureVoicevox();
-    logStage("tts", `VOICEVOX ${version} / 話者 ${script.config.speaker} / 速度 ${script.config.speedScale}`);
-  }
-  const voices: VoiceResult[] = [];
-  for (const scene of script.config.scenes) {
-    voices.push(
-      await synthesize({
-        text: scene.narration,
-        speaker: script.config.speaker,
-        speedScale: script.config.speedScale,
-        outDir: join(workDir, "tts"),
-        mock,
-        noCache: opts.noCache,
-      }),
-    );
+  const ttsEngine = script.config.tts.engine;
+  let voices: VoiceResult[];
+  if (!mock && ttsEngine === "irodori-colab") {
+    logStage("tts", `Irodori-TTS (Colab) / モデル ${script.config.tts.model} / 速度 ${script.config.speedScale}`);
+    voices = await synthesizeBatchIrodori({
+      texts: script.config.scenes.map((s) => s.narration),
+      model: script.config.tts.model,
+      gpu: script.config.tts.gpu,
+      caption: script.config.tts.caption,
+      speedScale: script.config.speedScale,
+      outDir: join(workDir, "tts"),
+      noCache: opts.noCache,
+    });
+  } else {
+    if (!mock) {
+      const version = await ensureVoicevox();
+      logStage("tts", `VOICEVOX ${version} / 話者 ${script.config.speaker} / 速度 ${script.config.speedScale}`);
+    }
+    voices = [];
+    for (const scene of script.config.scenes) {
+      voices.push(
+        await synthesize({
+          text: scene.narration,
+          speaker: script.config.speaker,
+          speedScale: script.config.speedScale,
+          outDir: join(workDir, "tts"),
+          mock,
+          noCache: opts.noCache,
+        }),
+      );
+    }
   }
   if (opts.only === "tts") return null;
 

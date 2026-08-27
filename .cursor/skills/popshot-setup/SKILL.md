@@ -59,6 +59,30 @@ Chrome が見つからないときだけ `BUN_CHROME_PATH` (tcut) と `PUPPETEER
 - 話者は YAML の `speaker:`。既定 3 = ずんだもん(ノーマル)。一覧はエンジン起動後に `$VOICEVOX_URL/speakers`
 - 商用利用時は各キャラクターの[利用規約](https://voicevox.hiroshiba.jp/)を確認
 
+## Irodori-TTS (Colab) — メイ声エンジン (任意)
+
+台本で `tts.engine: irodori-colab` を指定すると、VOICEVOX の代わりに Colab GPU 上の Irodori-TTS で合成する。
+
+前提:
+
+- **Windows は WSL2 (Ubuntu) 内**に `uv tool install google-colab-cli` + 認証 (`colaboratory` スコープ付きの ADC or oauth2)。macOS/Linux はネイティブで可
+- Colab Pro 推奨 (GPU 割当)
+- 学習済みモデル (`tts.model` にローカル safetensors パス or `hf:<repo/id>`)
+- **学習は Colab UI のノートブック** `notebooks/train_mei_lora.ipynb` で行う。CLI 作成セッションでは Drive マウントが非対話で通らないため
+
+```yaml
+tts:
+  engine: irodori-colab
+  model: "hf:<repo/id>"        # またはローカルの mei_v41.safetensors
+  gpu: T4
+  caption: ""                  # 任意のスタイルキャプション
+```
+
+- 未キャッシュ行だけをまとめて 1 ジョブで合成。セッション `popshot-tts` は再利用のため残る → 終わったら `colab stop -s popshot-tts` (Windows は `wsl -d Ubuntu-24.04 colab stop -s popshot-tts`)
+- モーラタイミングは得られない → カラオケ字幕・口パクは等配フォールバック
+- 初回は clone + uv sync + モデル取得で数分かかる
+- セッション作成に失敗する場合は GPU 割当を確認 (`--gpu` を外すと CPU)
+
 ## Windows 固有
 
 - パスは `fromModuleUrl()` / `fileURLToPath()`。`new URL(...).pathname` は `/C:/...` になり失敗する

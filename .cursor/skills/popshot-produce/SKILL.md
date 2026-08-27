@@ -48,6 +48,9 @@ speedScale: 1.15                 # ショートは 1.1〜1.3 推奨
 avatar: true                     # 右下アバター
 avatarImage: ../../assets/avatar-mei.png  # キャラ画像 (yaml からの相対パス)。このリポジトリの既定は assets/avatar-mei.png (桜草メイ)
 bgm: ../../assets/bgm/pop-loop.wav   # 任意 (yaml からの相対パス)
+# tts:                           # 省略時は voicevox (ローカル)
+#   engine: irodori-colab        # メイ LoRA 声で合成 (Colab GPU。要 notebooks/train_mei_lora.ipynb での学習)
+#   model: "hf:<repo/id>"        # 統合済みモデル。ローカルパスでも可
 scenes:
   - frame: hook/impact-zoom      # popshot frames の id
     narration: "読み上げる文"     # 字幕もこれから自動生成。caption: で上書きする場合も音声と同じ文にする (別文を字幕に出さない)

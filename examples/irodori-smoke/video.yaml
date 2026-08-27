@@ -1,0 +1,21 @@
+# Irodori-TTS (Colab) スモークテスト用台本。
+# ベースモデルで配管 (セッション作成→ジョブ投入→wav 回収) を検証する。
+# メイ LoRA 統合後は model を差し替える。
+title: "irodori smoke"
+theme: cyan
+speaker: 3
+speedScale: 1.15
+avatar: false
+tts:
+  engine: irodori-colab
+  model: "hf:Aratako/Irodori-TTS-v4.1-Small"
+  gpu: T4
+
+scenes:
+  - frame: hook/impact-zoom
+    narration: "こんにちは。テストです"
+    props: { title: "スモークテスト" }
+
+  - frame: outro/follow-cta
+    narration: "無事に聞こえましたか"
+    props: { message: "irodori smoke", buttonText: "OK" }

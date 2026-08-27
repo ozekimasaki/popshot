@@ -6,6 +6,7 @@ import { loadScript } from "./script.ts";
 import { renderPipeline, type RenderOptions, type Stage } from "./pipeline.ts";
 import { frames, framesByCategory, frameCount } from "./frames/index.ts";
 import { voicevoxAvailable, findVoicevoxEngine, ensureVoicevox, VOICEVOX_URL } from "./voicevox.ts";
+import { irodoriAvailable } from "./irodori.ts";
 import { findChrome, findGitBash, fromModuleUrl, logError, logStage } from "./util.ts";
 
 const HELP = `popshot — tcut + HyperFrames + GSAP + VOICEVOX ショート動画工場
@@ -239,13 +240,24 @@ async function cmdDoctor(): Promise<void> {
     fix: "bun run gen:se",
   });
 
-  const avatarPath = fromModuleUrl("../assets/avatar.png", import.meta.url);
-  const avatarOk = await Bun.file(avatarPath).exists();
+  const avatarMei = fromModuleUrl("../assets/avatar-mei.png", import.meta.url);
+  const avatarGeneric = fromModuleUrl("../assets/avatar.png", import.meta.url);
+  const avatarOk =
+    (await Bun.file(avatarMei).exists()) || (await Bun.file(avatarGeneric).exists());
   checks.push({
     name: "avatar",
     ok: avatarOk,
-    detail: avatarOk ? "assets/avatar.png" : "アバター画像がありません",
-    fix: "assets/avatar.png を配置するか bun run gen:avatar (または video.yaml で avatarImage を指定 / avatar: false)",
+    detail: avatarOk ? "assets/avatar-mei.png" : "アバター画像がありません",
+    fix: "assets/avatar-mei.png を配置 (既定: 桜草メイ)。汎用は bun run gen:avatar",
+  });
+
+  const irodori = await irodoriAvailable();
+  checks.push({
+    name: "irodori-colab",
+    ok: irodori !== null,
+    optional: true,
+    detail: irodori ? `colab v${irodori}` : "colab CLI が見つかりません",
+    fix: "tts.engine: irodori-colab を使う場合: WSL2 に uv tool install google-colab-cli + 認証 (popshot-setup 参照)",
   });
 
   let allOk = true;
