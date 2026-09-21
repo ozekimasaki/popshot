@@ -43,9 +43,9 @@ scenes:
     props:
       title: "stack.ts"
       code: |
-        new s3.Bucket(this, "Data");
-        new lambda.Function(this, "Api");
-        new rds.Instance(this, "Db");
+        new s3.Bucket(this, Data);
+        new lambda.Function(this, Api);
+        new rds.Instance(this, Db);
 
   - frame: terminal/slide-in
     narration: "地図を出せば一目なのだ"
