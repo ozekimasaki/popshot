@@ -1,0 +1,77 @@
+# サンプル: 30秒でわかる AWSの全機能
+title: "30秒でわかる AWSの全機能"
+theme: yellow
+speaker: 3          # ずんだもん
+speedScale: 1.15
+avatar: true
+bgm: ../../assets/bgm/pop-loop.wav
+
+scenes:
+  - frame: hook/stat-shock
+    narration: "AWS、サービス200個超なのだ"
+    props: { value: 200, suffix: "+", label: "公開中のサービス数" }
+
+  - frame: text/char-pop
+    narration: "全部覚えなくていいのだ"
+    props: { text: "全部覚えなくていい", emphasis: "全部" }
+
+  - frame: transition/pill-bounce-wipe
+
+  - frame: list/bingo-grid
+    narration: "9つの箱に全部入るのだ"
+    props:
+      cells: ["計算", "保存", "DB", "通信", "守り", "分析", "AI", "連携", "運用"]
+      line: 0
+
+  - frame: diagram/layer-stack
+    narration: "下から積むとこうなるのだ"
+    duration: 3.4
+    props:
+      title: "典型スタック"
+      layers: ["権限 IAM", "通信 VPC", "保存 S3/RDS", "計算 Lambda"]
+
+  - frame: list/tag-cloud-burst
+    narration: "代表サービスが弾けるのだ"
+    props:
+      title: "サービス雲"
+      items: ["EC2", "Lambda", "S3", "RDS", "VPC", "IAM", "Bedrock", "SQS"]
+
+  - frame: transition/pastel-confetti
+
+  - frame: code/typing-reveal
+    narration: "コード一発で全部建つなのだ"
+    props:
+      title: "stack.ts"
+      code: |
+        new s3.Bucket(this, Data);
+        new lambda.Function(this, Api);
+        new rds.Instance(this, Db);
+
+  - frame: terminal/slide-in
+    narration: "地図を出せば一目なのだ"
+    duration: 3.6
+    props: { label: "9箱マップ" }
+    terminal:
+      theme: catppuccin-mocha
+      fontSize: 32
+      commands:
+        - hide:
+            - "printf '%s\\n' 'COMPUTE   EC2 Lambda ECS EKS' 'STORAGE   S3 EBS Glacier' 'DATABASE  RDS Aurora DynamoDB' 'NETWORK   VPC CloudFront' 'SECURITY  IAM KMS WAF' 'ANALYTICS Athena Glue' 'AI/ML     Bedrock SageMaker' 'INTEGRATE SQS SNS EventBridge' 'OPS       CloudWatch CDK' > /tmp/aws-map.txt"
+        - run: "cat /tmp/aws-map.txt"
+        - expect: "Bedrock"
+        - sleep: "800ms"
+
+  - frame: quiz/choice-3
+    narration: "ここで問題。全機能は何箱?"
+    props:
+      question: "AWS全機能は何箱?"
+      choices: ["3箱", "9箱", "50箱"]
+      answer: 1
+
+  - frame: text/word-explosion
+    narration: "正解は9箱。地図が鍵なのだ"
+    props: { text: "9つの箱が地図", emphasis: "地図" }
+
+  - frame: outro/follow-cta
+    narration: "続きは毎日1分なのだ"
+    props: { message: "続きはフォローで!", buttonText: "フォロー" }
