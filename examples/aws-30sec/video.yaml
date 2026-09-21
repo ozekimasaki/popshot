@@ -25,6 +25,7 @@ scenes:
 
   - frame: diagram/layer-stack
     narration: "下から積むとこうなるのだ"
+    duration: 3.4
     props:
       title: "典型スタック"
       layers: ["権限 IAM", "通信 VPC", "保存 S3/RDS", "計算 Lambda"]
@@ -40,26 +41,25 @@ scenes:
   - frame: code/typing-reveal
     narration: "コード一発で全部建つなのだ"
     props:
-      title: "infra.yaml"
+      title: "stack.ts"
       code: |
-        Resources:
-          Bucket:
-            Type: AWS::S3::Bucket
-          Fn:
-            Type: AWS::Lambda::Function
+        new s3.Bucket(this, "Data");
+        new lambda.Function(this, "Api");
+        new rds.Instance(this, "Db");
 
   - frame: terminal/slide-in
     narration: "地図を出せば一目なのだ"
+    duration: 3.6
     props: { label: "9箱マップ" }
     terminal:
       theme: catppuccin-mocha
       fontSize: 32
       commands:
-        - run: "echo COMPUTE: EC2 Lambda ECS EKS"
-        - run: "echo STORAGE: S3 EBS EFS Glacier"
-        - run: "echo DATABASE: RDS Aurora DynamoDB"
-        - run: "echo AI/ML: Bedrock SageMaker"
+        - hide:
+            - "printf '%s\\n' 'COMPUTE   EC2 Lambda ECS EKS' 'STORAGE   S3 EBS Glacier' 'DATABASE  RDS Aurora DynamoDB' 'NETWORK   VPC CloudFront' 'SECURITY  IAM KMS WAF' 'ANALYTICS Athena Glue' 'AI/ML     Bedrock SageMaker' 'INTEGRATE SQS SNS EventBridge' 'OPS       CloudWatch CDK' > /tmp/aws-map.txt"
+        - run: "cat /tmp/aws-map.txt"
         - expect: "Bedrock"
+        - sleep: "800ms"
 
   - frame: quiz/choice-3
     narration: "ここで問題。全機能は何箱?"
@@ -73,5 +73,5 @@ scenes:
     props: { text: "9つの箱が地図", emphasis: "地図" }
 
   - frame: outro/follow-cta
-    narration: "フォローで毎日1分解説なのだ"
+    narration: "続きは毎日1分なのだ"
     props: { message: "続きはフォローで!", buttonText: "フォロー" }
